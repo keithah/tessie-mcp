@@ -9,6 +9,7 @@ import {
 
 const DEFAULT_TIMEOUT_MS = 30000;
 const MAX_DRIVE_LIMIT = 100;
+const DEFAULT_MAX_CACHE_SIZE = 200;
 const DEBUG_LOG_ENABLED =
   process.env.TESSIE_MCP_DEBUG === "1" || process.env.TESSIE_MCP_DEBUG === "true";
 const VEHICLE_LIST_TTL_MS = 30000;
@@ -58,6 +59,7 @@ export class TessieClient {
   private maxRetries = 3;
   private baseDelayMs = 500;
   private debugEnabled = DEBUG_LOG_ENABLED;
+  private maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
   private cache = new Map<string, { expires: number; value: unknown }>();
 
   private sanitizeMetaDeep(value: unknown): unknown {
@@ -82,12 +84,39 @@ export class TessieClient {
     console.debug(`[TessieClient] ${message}`, safeMeta);
   }
 
+  constructor(
+    apiKey: string,
+    options?: {
+      debugEnabled?: boolean;
+      maxCacheSize?: number;
+      axiosInstance?: AxiosInstance;
+    },
+  ) {
+    this.debugEnabled =
+      options?.debugEnabled ?? (process.env.TESSIE_MCP_DEBUG === "1" || process.env.TESSIE_MCP_DEBUG === "true");
+    this.maxCacheSize = options?.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
+    this.client =
+      options?.axiosInstance ??
+      axios.create({
+        baseURL: "https://api.tessie.com",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        timeout: DEFAULT_TIMEOUT_MS,
+      });
+  }
+
   private serializeParams(params?: Record<string, unknown> | DateRange) {
     if (!params) return "";
-    const entries = Object.entries(params as Record<string, unknown>).sort(([a], [b]) =>
-      a.localeCompare(b),
-    );
-    return JSON.stringify(Object.fromEntries(entries));
+    const entries = Object.entries(params as Record<string, unknown>);
+    if (entries.length === 0) return "";
+    if (entries.length === 1) {
+      const [key, value] = entries[0];
+      return `${key}:${String(value)}`;
+    }
+    const sorted = entries.sort(([a], [b]) => a.localeCompare(b));
+    return JSON.stringify(Object.fromEntries(sorted));
   }
 
   private cacheKey(kind: string, ...parts: string[]) {
@@ -102,6 +131,11 @@ export class TessieClient {
     }
     const value = await fetcher();
     this.cache.set(key, { expires: now + ttlMs, value });
+    while (this.cache.size > this.maxCacheSize) {
+      const oldest = this.cache.keys().next().value;
+      if (!oldest) break;
+      this.cache.delete(oldest);
+    }
     return value;
   }
 
@@ -114,17 +148,9 @@ export class TessieClient {
   }
 
   private invalidateVin(vin: string) {
-    this.invalidate((key) => key.includes(`:${vin}`));
-  }
-
-  constructor(apiKey: string) {
-    this.client = axios.create({
-      baseURL: "https://api.tessie.com",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      timeout: DEFAULT_TIMEOUT_MS,
+    this.invalidate((key) => {
+      const segments = key.split(":");
+      return segments.length >= 2 && segments[1] === vin;
     });
   }
 
