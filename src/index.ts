@@ -200,6 +200,17 @@ function ensureNonEmptyString(value: string | undefined, name: string) {
   }
 }
 
+function ensureRange(
+  value: number | undefined,
+  name: string,
+  min: number,
+  max: number,
+) {
+  if (value === undefined || Number.isNaN(value) || value < min || value > max) {
+    throw new Error(`Missing or invalid ${name} (expected ${min}-${max})`);
+  }
+}
+
 export default function createServer({ config }: { config: z.infer<typeof configSchema> }) {
   const apiKey = config.TESSIE_API_KEY.trim();
   const server = new McpServer({
@@ -209,7 +220,6 @@ export default function createServer({ config }: { config: z.infer<typeof config
   });
 
   const client = new TessieClient(apiKey);
-  const VALID_VIN = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
   server.tool(
     "get_active_context",
@@ -241,7 +251,6 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "Fetch the latest vehicle state (location, climate, locks, battery snapshot).",
     {
       vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
-      operation: z.enum(operations),
     },
     async ({ vin }) => {
       try {
@@ -328,7 +337,8 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "manage_vehicle_command",
     "Composite command executor for Tessie vehicle actions (lock, charging, climate, speed limit, sentry).",
     {
-      vin: z.string().describe("Vehicle VIN."),
+      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      operation: z.enum(operations),
       params: z
         .object({
           charge_limit_percent: z.number().optional(),
@@ -372,20 +382,20 @@ export default function createServer({ config }: { config: z.infer<typeof config
         }
 
         if (operation === "set_charge_limit") {
-          ensurePositive(params?.charge_limit_percent, "charge_limit_percent");
+          ensureRange(params?.charge_limit_percent, "charge_limit_percent", 1, 100);
         }
         if (operation === "set_charging_amps") {
           ensurePositive(params?.charging_amps, "charging_amps");
         }
         if (operation === "set_temperature") {
-          ensurePositive(params?.cabin_temp_c, "cabin_temp_c");
+          ensureRange(params?.cabin_temp_c, "cabin_temp_c", -10, 40);
         }
         if (operation === "set_speed_limit") {
           ensurePositive(params?.speed_limit_mph, "speed_limit_mph");
         }
         if (operation === "set_seat_heating" || operation === "set_seat_cooling") {
           ensureNumberProvided(params?.seat_position, "seat_position", true);
-          ensureNumberProvided(params?.seat_level, "seat_level", true);
+          ensureRange(params?.seat_level, "seat_level", 0, 3);
         }
         if (
           operation === "enable_speed_limit" ||

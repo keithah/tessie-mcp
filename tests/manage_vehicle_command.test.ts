@@ -5,9 +5,11 @@ describe("manage_vehicle_command validation", () => {
   const server = createServer({ config: { TESSIE_API_KEY: "test-key" } });
   const tool = getTool(server as any, "manage_vehicle_command");
 
+  const vin = "5YJ3E1EA7KF317000";
+
   it("requires confirm for destructive operations", async () => {
     const input = tool.inputSchema.parse({
-      vin: "VIN123",
+      vin,
       operation: "lock",
       params: { confirm: false },
     });
@@ -19,7 +21,7 @@ describe("manage_vehicle_command validation", () => {
 
   it("returns error payload when flash_lights fails with invalid key", async () => {
     const input = tool.inputSchema.parse({
-      vin: "VIN123",
+      vin,
       operation: "flash_lights",
     });
     const result = await tool.callback(input);
@@ -29,7 +31,7 @@ describe("manage_vehicle_command validation", () => {
 
   it("rejects missing required params for set_charge_limit", async () => {
     const input = tool.inputSchema.parse({
-      vin: "VIN123",
+      vin,
       operation: "set_charge_limit",
       params: { confirm: true },
     });

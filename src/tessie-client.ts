@@ -40,9 +40,12 @@ export class TessieClient {
       const response = await this.client.get<TessieVehicleSummary[] | { results: TessieVehicleSummary[] }>("/vehicles", {
         params,
       });
-      const data = response.data as any;
-      if (data && typeof data === "object" && Array.isArray((data as any).results)) {
-        return (data as any).results as TessieVehicleSummary[];
+      const data: unknown = response.data;
+      if (data && typeof data === "object" && "results" in data) {
+        const maybeResults = (data as { results?: unknown }).results;
+        if (Array.isArray(maybeResults)) {
+          return maybeResults as TessieVehicleSummary[];
+        }
       }
       return data as TessieVehicleSummary[];
     } catch (error) {
@@ -100,9 +103,12 @@ export class TessieClient {
         params.limit = String(bounded);
       }
       const response = await this.client.get<TessieDrive[] | { results: TessieDrive[] }>(`/${vin}/drives`, { params });
-      const data = response.data as any;
-      if (data && typeof data === "object" && Array.isArray(data.results)) {
-        return data.results as TessieDrive[];
+      const data: unknown = response.data;
+      if (data && typeof data === "object" && "results" in data) {
+        const maybeResults = (data as { results?: unknown }).results;
+        if (Array.isArray(maybeResults)) {
+          return maybeResults as TessieDrive[];
+        }
       }
       return data as TessieDrive[];
     } catch (error) {
