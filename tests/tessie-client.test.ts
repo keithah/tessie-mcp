@@ -68,6 +68,24 @@ describe("TessieClient guards and bounds", () => {
     expect(getMock).toHaveBeenCalledTimes(2);
   });
 
+  it("deduplicates concurrent requests for the same key", async () => {
+    const client = new TessieClient("secret");
+    let resolveFn: () => void = () => {};
+    const getMock = jest.fn().mockImplementation(
+      () =>
+        new Promise<{ data: {} }>((resolve) => {
+          resolveFn = () => resolve({ data: {} });
+        }),
+    );
+    (client as any).client = { get: getMock, post: jest.fn() };
+
+    const p1 = client.getVehicleState("VINX");
+    const p2 = client.getVehicleState("VINX");
+    expect(getMock).toHaveBeenCalledTimes(1);
+    resolveFn();
+    await Promise.all([p1, p2]);
+  });
+
   it("evicts oldest cache entries when maxCacheSize is exceeded", async () => {
     const client = new TessieClient("secret", { maxCacheSize: 2 });
     const getMock = jest.fn().mockResolvedValue({ data: [] });

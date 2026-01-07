@@ -91,6 +91,17 @@ export class TessieClient {
     console.debug(`[TessieClient] ${message}`, safeMeta);
   }
 
+  private sanitizeUrl(url?: string) {
+    if (!url) return url;
+    try {
+      const parsed = new URL(url, "https://api.tessie.com");
+      parsed.search = "";
+      return parsed.toString();
+    } catch {
+      return url;
+    }
+  }
+
   constructor(
     apiKey: string,
     options?: {
@@ -115,9 +126,14 @@ export class TessieClient {
 
   private serializeParams(params?: Record<string, unknown> | DateRange) {
     if (!params) return "";
-    const entries = Object.entries(params as Record<string, unknown>);
-    const sorted = entries.sort(([a], [b]) => a.localeCompare(b));
-    return JSON.stringify(Object.fromEntries(sorted));
+    try {
+      const entries = Object.entries(params as Record<string, unknown>);
+      const sorted = entries.sort(([a], [b]) => a.localeCompare(b));
+      return JSON.stringify(Object.fromEntries(sorted));
+    } catch (error) {
+      console.warn("Failed to serialize params for cache key", this.sanitizeMetaDeep(error));
+      return JSON.stringify(params);
+    }
   }
 
   private cacheKey(kind: string, ...parts: string[]) {
@@ -179,7 +195,7 @@ export class TessieClient {
           context,
           attempt,
           status,
-          url: (error as any)?.config?.url,
+          url: this.sanitizeUrl((error as any)?.config?.url),
         });
         const retriable = status === 429 || (status && status >= 500);
         if (!retriable || attempt >= this.maxRetries) {
@@ -291,6 +307,7 @@ export class TessieClient {
     endpoint: string,
     payload: CommandPayload = {},
   ) {
+    this.invalidateVin(vin);
     const result = await this.withRetry(async () => {
       const response = await this.client.post<Record<string, unknown>>(`/${vin}/command/${endpoint}`, payload);
       return response.data;
