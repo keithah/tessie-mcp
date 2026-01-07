@@ -51,6 +51,8 @@ const operations = [
   "set_speed_limit",
 ] as const;
 
+const SAFE_OPERATIONS: Operation[] = ["flash_lights", "honk", "wake"];
+
 type Operation = (typeof operations)[number];
 
 type CommandInput = {
@@ -207,6 +209,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
   });
 
   const client = new TessieClient(apiKey);
+  const VALID_VIN = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
   server.tool(
     "get_active_context",
@@ -237,7 +240,8 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "fetch_vehicle_state",
     "Fetch the latest vehicle state (location, climate, locks, battery snapshot).",
     {
-      vin: z.string().describe("Vehicle VIN."),
+      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      operation: z.enum(operations),
     },
     async ({ vin }) => {
       try {
@@ -258,7 +262,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "fetch_vehicle_battery",
     "Fetch battery and charging details for a vehicle.",
     {
-      vin: z.string().describe("Vehicle VIN."),
+      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
     },
     async ({ vin }) => {
       try {
@@ -277,7 +281,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "search_drives",
     "List recent drives for a vehicle (summary-first with optional date range).",
     {
-      vin: z.string().describe("Vehicle VIN."),
+      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
       start: z.string().optional().describe("ISO 8601 start timestamp."),
       end: z.string().optional().describe("ISO 8601 end timestamp."),
       limit: z.number().int().positive().optional().default(20),
@@ -302,7 +306,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "get_driving_path",
     "Get driving path coordinates for a vehicle over a timeframe.",
     {
-      vin: z.string().describe("Vehicle VIN."),
+      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
       start: z.string().optional().describe("ISO 8601 start timestamp."),
       end: z.string().optional().describe("ISO 8601 end timestamp."),
     },
@@ -325,7 +329,6 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "Composite command executor for Tessie vehicle actions (lock, charging, climate, speed limit, sentry).",
     {
       vin: z.string().describe("Vehicle VIN."),
-      operation: z.enum(operations),
       params: z
         .object({
           charge_limit_percent: z.number().optional(),
@@ -359,7 +362,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
           throw new Error(`Unsupported operation: ${operation}`);
         }
 
-        const isDestructive = operation !== "wake" && operation !== "flash_lights" && operation !== "honk";
+        const isDestructive = !SAFE_OPERATIONS.includes(operation);
         if (isDestructive && params?.confirm !== true) {
           return wrapContent({
             isError: true,

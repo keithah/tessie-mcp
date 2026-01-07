@@ -1,4 +1,6 @@
-export function toVehicleListItem(v: any) {
+import { TessieBatteryState, TessieDrive, TessieVehicleState, TessieVehicleSummary } from "./types.ts";
+
+export function toVehicleListItem(v: TessieVehicleSummary) {
   return {
     vin: v.vin,
     name:
@@ -10,7 +12,7 @@ export function toVehicleListItem(v: any) {
   };
 }
 
-export function toStateSummary(vin: string, state: any) {
+export function toStateSummary(vin: string, state: TessieVehicleState) {
   return {
     vin,
     vehicle: state?.vehicle_state?.vehicle_name ?? state?.display_name,
@@ -35,7 +37,7 @@ export function toStateSummary(vin: string, state: any) {
   };
 }
 
-export function toBatterySummary(vin: string, battery: any) {
+export function toBatterySummary(vin: string, battery: TessieBatteryState) {
   return {
     vin,
     level: battery?.battery_level ?? battery?.battery_level_percent,
@@ -45,7 +47,7 @@ export function toBatterySummary(vin: string, battery: any) {
   };
 }
 
-export function toDriveSummary(drive: any) {
+export function toDriveSummary(drive: TessieDrive) {
   return {
     id: drive?.id ?? drive?.import_id,
     started_at: drive?.started_at ?? drive?.start_date,

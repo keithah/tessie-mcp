@@ -39,7 +39,7 @@ export function toMcpError(error: unknown, context: string): McpError {
       details: {
         context,
         request: safeConfig,
-        data: error.response?.data,
+        statusText: error.response?.statusText,
       },
     };
   }
