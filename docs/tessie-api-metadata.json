@@ -1,0 +1,1667 @@
+{
+  "source": "https://developer.tessie.com/sitemap.xml",
+  "count": 91,
+  "entries": [
+    {
+      "title": "Overview - Tessie",
+      "url": "https://developer.tessie.com/reference/about",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Access Tesla Fleet API - Tessie",
+      "url": "https://developer.tessie.com/reference/access-tesla-fleet-api",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Access Tesla Fleet Telemetry - Tessie",
+      "url": "https://developer.tessie.com/reference/access-tesla-fleet-telemetry",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Add Charge Schedule - Tessie",
+      "url": "https://developer.tessie.com/reference/add-charge-schedule",
+      "operation": null,
+      "parameters": [
+        "days-of-week",
+        "enabled",
+        "end-enabled",
+        "end-time",
+        "id",
+        "lat",
+        "lon",
+        "one-time",
+        "start-enabled",
+        "start-time",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "days_of_week",
+        "enabled",
+        "end_enabled",
+        "end_time",
+        "id",
+        "lat",
+        "lon",
+        "one_time",
+        "result",
+        "start_enabled",
+        "start_time",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Add Precondition Schedule - Tessie",
+      "url": "https://developer.tessie.com/reference/add-precondition-schedule",
+      "operation": null,
+      "parameters": [
+        "days-of-week",
+        "enabled",
+        "id",
+        "lat",
+        "lon",
+        "one-time",
+        "precondition-time",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "days_of_week",
+        "enabled",
+        "id",
+        "lat",
+        "lon",
+        "one_time",
+        "precondition_time",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Authentication - Tessie",
+      "url": "https://developer.tessie.com/reference/authentication",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Boombox - Tessie",
+      "url": "https://developer.tessie.com/reference/boombox",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Cancel Software Update - Tessie",
+      "url": "https://developer.tessie.com/reference/cancel-software-update",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Clear Speed Limit PIN - Tessie",
+      "url": "https://developer.tessie.com/reference/clear-speed-limit-pin",
+      "operation": null,
+      "parameters": [
+        "pin",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "pin",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Close Charge Port - Tessie",
+      "url": "https://developer.tessie.com/reference/close-charge-port",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Close Sunroof - Tessie",
+      "url": "https://developer.tessie.com/reference/close-sunroof",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Close Tonneau - Tessie",
+      "url": "https://developer.tessie.com/reference/close-tonneau",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Close Windows - Tessie",
+      "url": "https://developer.tessie.com/reference/close-windows",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Create an Invitation - Tessie",
+      "url": "https://developer.tessie.com/reference/create-an-invitation",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Delete Driver - Tessie",
+      "url": "https://developer.tessie.com/reference/delete-driver",
+      "operation": null,
+      "parameters": [
+        "id",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "id",
+        "result",
+        "user_id",
+        "vin"
+      ]
+    },
+    {
+      "title": "Delete Telemetry Config - Tessie",
+      "url": "https://developer.tessie.com/reference/delete-telemetry-config",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "updated_vehicles",
+        "vin"
+      ]
+    },
+    {
+      "title": "Disable Guest Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/disable-guest-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Disable Sentry Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/disable-sentry-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Disable Speed Limit - Tessie",
+      "url": "https://developer.tessie.com/reference/disable-speed-limit",
+      "operation": null,
+      "parameters": [
+        "pin",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "pin",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Disable Valet Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/disable-valet-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Enable Guest Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/enable-guest-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Enable Keyless Driving - Tessie",
+      "url": "https://developer.tessie.com/reference/enable-keyless-driving",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Enable Sentry Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/enable-sentry-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Enable Speed Limit - Tessie",
+      "url": "https://developer.tessie.com/reference/enable-speed-limit",
+      "operation": null,
+      "parameters": [
+        "pin",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "pin",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Enable Valet Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/enable-valet-mode",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Flash Lights - Tessie",
+      "url": "https://developer.tessie.com/reference/flash-lights",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Front Trunk - Tessie",
+      "url": "https://developer.tessie.com/reference/front-trunk",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Get All Charging Invoices - Tessie",
+      "url": "https://developer.tessie.com/reference/get-all-charging-invoices",
+      "operation": null,
+      "parameters": [
+        "format",
+        "from",
+        "timezone",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "format",
+        "from",
+        "results",
+        "timezone",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Vehicles - Tessie",
+      "url": "https://developer.tessie.com/reference/get-all-vehicles",
+      "operation": null,
+      "parameters": [
+        "only-active"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "only_active",
+        "results"
+      ]
+    },
+    {
+      "title": "Get Battery - Tessie",
+      "url": "https://developer.tessie.com/reference/get-battery",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "battery_level",
+        "battery_range",
+        "energy_remaining",
+        "ideal_battery_range",
+        "lifetime_energy_used",
+        "module_temp_max",
+        "module_temp_min",
+        "pack_current",
+        "pack_voltage",
+        "phantom_drain_percent",
+        "timestamp",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Battery Health - Tessie",
+      "url": "https://developer.tessie.com/reference/get-battery-health",
+      "operation": null,
+      "parameters": [
+        "distance-format",
+        "from",
+        "only-active",
+        "to"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "distance_format",
+        "from",
+        "only_active",
+        "results",
+        "to"
+      ]
+    },
+    {
+      "title": "Get Battery Health Measurements - Tessie",
+      "url": "https://developer.tessie.com/reference/get-battery-health-measurements",
+      "operation": null,
+      "parameters": [
+        "distance-format",
+        "from",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "distance_format",
+        "from",
+        "result",
+        "results",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Charges - Tessie",
+      "url": "https://developer.tessie.com/reference/get-charges",
+      "operation": null,
+      "parameters": [
+        "distance-format",
+        "exclude-origin",
+        "format",
+        "from",
+        "limit",
+        "minimum-energy-added",
+        "origin-latitude",
+        "origin-longitude",
+        "origin-radius",
+        "superchargers-only",
+        "timezone",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "distance_format",
+        "exclude_origin",
+        "format",
+        "from",
+        "limit",
+        "minimum_energy_added",
+        "origin_latitude",
+        "origin_longitude",
+        "origin_radius",
+        "results",
+        "superchargers_only",
+        "timezone",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Consumption - Tessie",
+      "url": "https://developer.tessie.com/reference/get-consumption",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "battery_percent_used",
+        "battery_percent_used_by_driving",
+        "distance_driven",
+        "energy_used",
+        "energy_used_by_driving",
+        "ideal_range_used",
+        "ideal_range_used_by_driving",
+        "last_charge_at",
+        "rated_range_used",
+        "rated_range_used_by_driving",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Drivers - Tessie",
+      "url": "https://developer.tessie.com/reference/get-drivers",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "results",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Drives - Tessie",
+      "url": "https://developer.tessie.com/reference/get-drives",
+      "operation": null,
+      "parameters": [
+        "destination-latitude",
+        "destination-longitude",
+        "destination-radius",
+        "distance-format",
+        "driver-profile",
+        "exclude-destination",
+        "exclude-driver-profile",
+        "exclude-origin",
+        "exclude-tag",
+        "format",
+        "from",
+        "limit",
+        "minimum-distance",
+        "origin-latitude",
+        "origin-longitude",
+        "origin-radius",
+        "tag",
+        "temperature-format",
+        "timezone",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "destination_latitude",
+        "destination_longitude",
+        "destination_radius",
+        "distance_format",
+        "driver_profile",
+        "exclude_destination",
+        "exclude_driver_profile",
+        "exclude_origin",
+        "exclude_tag",
+        "format",
+        "from",
+        "limit",
+        "minimum_distance",
+        "origin_latitude",
+        "origin_longitude",
+        "origin_radius",
+        "results",
+        "tag",
+        "temperature_format",
+        "timezone",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Driving Path - Tessie",
+      "url": "https://developer.tessie.com/reference/get-driving-path",
+      "operation": null,
+      "parameters": [
+        "details",
+        "from",
+        "separate",
+        "simplify",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "details",
+        "from",
+        "results",
+        "separate",
+        "simplify",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Firmware Alerts - Tessie",
+      "url": "https://developer.tessie.com/reference/get-firmware-alerts",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "results",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Historical States - Tessie",
+      "url": "https://developer.tessie.com/reference/get-historical-states",
+      "operation": null,
+      "parameters": [
+        "condense",
+        "distance-format",
+        "format",
+        "from",
+        "interval",
+        "temperature-format",
+        "timezone",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "condense",
+        "distance_format",
+        "format",
+        "from",
+        "interval",
+        "results",
+        "temperature_format",
+        "timezone",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Idles - Tessie",
+      "url": "https://developer.tessie.com/reference/get-idles",
+      "operation": null,
+      "parameters": [
+        "distance-format",
+        "exclude-origin",
+        "format",
+        "from",
+        "limit",
+        "origin-latitude",
+        "origin-longitude",
+        "origin-radius",
+        "timezone",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "distance_format",
+        "exclude_origin",
+        "format",
+        "from",
+        "limit",
+        "origin_latitude",
+        "origin_longitude",
+        "origin_radius",
+        "results",
+        "timezone",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Invitations - Tessie",
+      "url": "https://developer.tessie.com/reference/get-invitations",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "results",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Last Idle State - Tessie",
+      "url": "https://developer.tessie.com/reference/get-last-idle-state",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get License Plate - Tessie",
+      "url": "https://developer.tessie.com/reference/get-license-plate",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Location - Tessie",
+      "url": "https://developer.tessie.com/reference/get-location",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "address",
+        "latitude",
+        "longitude",
+        "saved_location",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Map - Tessie",
+      "url": "https://developer.tessie.com/reference/get-map",
+      "operation": null,
+      "parameters": [
+        "height",
+        "marker-size",
+        "style",
+        "vin",
+        "width",
+        "zoom"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "height",
+        "marker_size",
+        "style",
+        "vin",
+        "width",
+        "zoom"
+      ]
+    },
+    {
+      "title": "Get Status - Tessie",
+      "url": "https://developer.tessie.com/reference/get-status",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "status",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Telemetry Config - Tessie",
+      "url": "https://developer.tessie.com/reference/get-telemetry-config",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "config",
+        "synced",
+        "update_available",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Tire Pressure - Tessie",
+      "url": "https://developer.tessie.com/reference/get-tire-pressure",
+      "operation": null,
+      "parameters": [
+        "from",
+        "pressure-format",
+        "to",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "from",
+        "front_left",
+        "front_left_status",
+        "front_right",
+        "front_right_status",
+        "pressure_format",
+        "rear_left",
+        "rear_left_status",
+        "rear_right",
+        "rear_right_status",
+        "timestamp",
+        "to",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Vehicle - Tessie",
+      "url": "https://developer.tessie.com/reference/get-vehicle",
+      "operation": null,
+      "parameters": [
+        "use-cache",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "access_type",
+        "api_version",
+        "backseat_token",
+        "backseat_token_updated_at",
+        "calendar_enabled",
+        "charge_state",
+        "climate_state",
+        "color",
+        "display_name",
+        "drive_state",
+        "gui_settings",
+        "id",
+        "id_s",
+        "in_service",
+        "option_codes",
+        "state",
+        "use_cache",
+        "user_id",
+        "vehicle_config",
+        "vehicle_id",
+        "vehicle_state",
+        "vin"
+      ]
+    },
+    {
+      "title": "Get Weather - Tessie",
+      "url": "https://developer.tessie.com/reference/get-weather",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "cloudiness",
+        "condition",
+        "feels_like",
+        "humidity",
+        "location",
+        "pressure",
+        "sunrise",
+        "sunset",
+        "temperature",
+        "vin",
+        "visibility",
+        "wind_direction",
+        "wind_speed"
+      ]
+    },
+    {
+      "title": "Honk - Tessie",
+      "url": "https://developer.tessie.com/reference/honk",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Lock - Tessie",
+      "url": "https://developer.tessie.com/reference/lock",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Open Charge Port - Tessie",
+      "url": "https://developer.tessie.com/reference/open-charge-port",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Open Tonneau - Tessie",
+      "url": "https://developer.tessie.com/reference/open-tonneau",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Quick Start - Tessie",
+      "url": "https://developer.tessie.com/reference/quick-start",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Rear Trunk - Tessie",
+      "url": "https://developer.tessie.com/reference/rear-trunk",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Remove Charge Schedule - Tessie",
+      "url": "https://developer.tessie.com/reference/remove-charge-schedule",
+      "operation": null,
+      "parameters": [
+        "id",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "id",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Remove Precondition Schedule - Tessie",
+      "url": "https://developer.tessie.com/reference/remove-precondition-schedule",
+      "operation": null,
+      "parameters": [
+        "id",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "id",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Revoke an Invitation - Tessie",
+      "url": "https://developer.tessie.com/reference/revoke-an-invitation",
+      "operation": null,
+      "parameters": [
+        "id",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "id",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Schedule Software Update - Tessie",
+      "url": "https://developer.tessie.com/reference/schedule-software-update",
+      "operation": null,
+      "parameters": [
+        "in-seconds",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "in_seconds",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Bio Defense Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/set-bio-defense-mode",
+      "operation": null,
+      "parameters": [
+        "on",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "on",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Cabin Overheat Protection - Tessie",
+      "url": "https://developer.tessie.com/reference/set-cabin-overheat-protection",
+      "operation": null,
+      "parameters": [
+        "fan-only",
+        "on",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "fan_only",
+        "on",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Cabin Overheat Protection Temp - Tessie",
+      "url": "https://developer.tessie.com/reference/set-cabin-overheat-protection-temp",
+      "operation": null,
+      "parameters": [
+        "cop-temp",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "cop_temp",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Charge Cost - Tessie",
+      "url": "https://developer.tessie.com/reference/set-charge-cost",
+      "operation": null,
+      "parameters": [
+        "cost",
+        "id",
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "cost",
+        "id",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Set Charge Limit - Tessie",
+      "url": "https://developer.tessie.com/reference/set-charge-limit",
+      "operation": null,
+      "parameters": [
+        "percent",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "percent",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Charging Amps - Tessie",
+      "url": "https://developer.tessie.com/reference/set-charging-amps",
+      "operation": null,
+      "parameters": [
+        "amps",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "amps",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Climate Keeper Mode - Tessie",
+      "url": "https://developer.tessie.com/reference/set-climate-keeper-mode",
+      "operation": null,
+      "parameters": [
+        "mode",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "mode",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Drive Tag - Tessie",
+      "url": "https://developer.tessie.com/reference/set-drive-tag",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "drives",
+        "result",
+        "tag",
+        "vin"
+      ]
+    },
+    {
+      "title": "Set License Plate - Tessie",
+      "url": "https://developer.tessie.com/reference/set-license-plate",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "plate",
+        "result",
+        "vin"
+      ]
+    },
+    {
+      "title": "Set Scheduled Charging - Tessie",
+      "url": "https://developer.tessie.com/reference/set-scheduled-charging",
+      "operation": null,
+      "parameters": [
+        "enable",
+        "time",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "enable",
+        "result",
+        "time",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Scheduled Departure - Tessie",
+      "url": "https://developer.tessie.com/reference/set-scheduled-departure",
+      "operation": null,
+      "parameters": [
+        "departure-time",
+        "enable",
+        "end-off-peak-time",
+        "off-peak-charging-enabled",
+        "off-peak-charging-weekdays-only",
+        "preconditioning-enabled",
+        "preconditioning-weekdays-only",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "departure_time",
+        "enable",
+        "end_off_peak_time",
+        "off_peak_charging_enabled",
+        "off_peak_charging_weekdays_only",
+        "preconditioning_enabled",
+        "preconditioning_weekdays_only",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Seat Cooling - Tessie",
+      "url": "https://developer.tessie.com/reference/set-seat-cooling",
+      "operation": null,
+      "parameters": [
+        "level",
+        "seat",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "level",
+        "result",
+        "seat",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Seat Heating - Tessie",
+      "url": "https://developer.tessie.com/reference/set-seat-heating",
+      "operation": null,
+      "parameters": [
+        "level",
+        "seat",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "level",
+        "result",
+        "seat",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Speed Limit - Tessie",
+      "url": "https://developer.tessie.com/reference/set-speed-limit",
+      "operation": null,
+      "parameters": [
+        "mph",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "mph",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Set Telemetry Config - Tessie",
+      "url": "https://developer.tessie.com/reference/set-telemetry-config",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "fields",
+        "updated_vehicles",
+        "vin"
+      ]
+    },
+    {
+      "title": "Set Temperature - Tessie",
+      "url": "https://developer.tessie.com/reference/set-temperature",
+      "operation": null,
+      "parameters": [
+        "temperature",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "temperature",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Share - Tessie",
+      "url": "https://developer.tessie.com/reference/share",
+      "operation": null,
+      "parameters": [
+        "locale",
+        "value",
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "locale",
+        "result",
+        "value",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Start Charging - Tessie",
+      "url": "https://developer.tessie.com/reference/start-charging",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Start Climate - Tessie",
+      "url": "https://developer.tessie.com/reference/start-climate",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Start Defrost - Tessie",
+      "url": "https://developer.tessie.com/reference/start-defrost",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Start Steering Wheel Heater - Tessie",
+      "url": "https://developer.tessie.com/reference/start-steering-wheel-heater",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Stop Charging - Tessie",
+      "url": "https://developer.tessie.com/reference/stop-charging",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Stop Climate - Tessie",
+      "url": "https://developer.tessie.com/reference/stop-climate",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Stop Defrost - Tessie",
+      "url": "https://developer.tessie.com/reference/stop-defrost",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Stop Steering Wheel Heater - Tessie",
+      "url": "https://developer.tessie.com/reference/stop-steering-wheel-heater",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Compare APIs - Tessie",
+      "url": "https://developer.tessie.com/reference/tesla-api-comparison",
+      "operation": null,
+      "parameters": [],
+      "body_fields": [],
+      "fields": []
+    },
+    {
+      "title": "Trigger HomeLink - Tessie",
+      "url": "https://developer.tessie.com/reference/trigger-homelink",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Unlock - Tessie",
+      "url": "https://developer.tessie.com/reference/unlock",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Vent Sunroof - Tessie",
+      "url": "https://developer.tessie.com/reference/vent-sunroof",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Vent Windows - Tessie",
+      "url": "https://developer.tessie.com/reference/vent-windows",
+      "operation": null,
+      "parameters": [
+        "vin",
+        "wait-for-completion"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin",
+        "wait_for_completion"
+      ]
+    },
+    {
+      "title": "Wake - Tessie",
+      "url": "https://developer.tessie.com/reference/wake",
+      "operation": null,
+      "parameters": [
+        "vin"
+      ],
+      "body_fields": [],
+      "fields": [
+        "Authorization",
+        "result",
+        "vin"
+      ]
+    }
+  ]
+}

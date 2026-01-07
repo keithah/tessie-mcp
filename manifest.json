@@ -2,8 +2,8 @@
   "dxt_version": "0.1",
   "name": "tessie-optimized",
   "display_name": "Tessie Vehicle Insights",
-  "version": "1.1.0",
-  "description": "Advanced Tesla vehicle data access through Tessie API with natural language processing, query optimization, and intelligent analytics",
+  "version": "2.0.0",
+  "description": "Tessie MCP server (v2) built from the latest developer.tessie.com API with summary-first tools.",
   "author": {
     "name": "Keith"
   },

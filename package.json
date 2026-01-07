@@ -1,7 +1,7 @@
 {
   "name": "tessie-mcp-server",
-  "version": "1.2.2",
-  "description": "🚗 Advanced Tesla MCP Server - MCP protocol compliant with intelligent analytics, cost optimization, and predictive insights through Tessie API",
+  "version": "2.0.0",
+  "description": "Tessie MCP server (v2) with summary-first tools built from the latest Tessie developer API.",
   "type": "module",
   "module": "./src/index.ts",
   "bin": {
@@ -19,6 +19,8 @@
     "dev": "smithery dev",
     "test": "jest",
     "test:watch": "jest --watch",
+    "smoke": "npx tsx scripts/smoke.ts",
+    "smoke:tools": "npx tsx scripts/tool-smoke.ts",
     "release": "npm run build:all && echo 'Release v$(node -p \"require('./package.json').version\") built successfully'"
   },
   "keywords": [
@@ -42,6 +44,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "jest": "^30.1.3",
+    "ts-node": "^10.9.2",
     "ts-jest": "^29.4.4",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
@@ -51,6 +54,7 @@
     "testEnvironment": "node",
     "roots": ["<rootDir>/src", "<rootDir>/tests"],
     "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+    "passWithNoTests": true,
     "transform": {
       "^.+\\.ts$": "ts-jest"
     },
