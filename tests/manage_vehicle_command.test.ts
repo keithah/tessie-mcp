@@ -2,8 +2,8 @@ import { z } from "zod";
 import createServer, { getTool } from "../src/index.ts";
 
 describe("manage_vehicle_command validation", () => {
-const server = createServer({ config: { TESSIE_API_KEY: "test-key" } });
-const tool = getTool(server as any, "manage_vehicle_command");
+  const server = createServer({ config: { TESSIE_API_KEY: "test-key" } });
+  const tool = getTool(server as any, "manage_vehicle_command");
 
   const vin = "5YJ3E1EA7KF317000";
 
@@ -71,5 +71,16 @@ const tool = getTool(server as any, "manage_vehicle_command");
     const result = await tool.callback(input);
     const payload = JSON.parse(result.content[0].text);
     expect(payload.message).toMatch(/cabin_overheat_temp_c/);
+  });
+
+  it("requires on/off flag for cabin overheat protection", async () => {
+    const input = tool.inputSchema.parse({
+      vin,
+      operation: "set_cabin_overheat_protection",
+      params: { confirm: true },
+    });
+    const result = await tool.callback(input);
+    const payload = JSON.parse(result.content[0].text);
+    expect(payload.message).toMatch(/cabin_overheat_on/);
   });
 });

@@ -9,6 +9,20 @@ import {
 
 const DEFAULT_TIMEOUT_MS = 30000;
 const MAX_DRIVE_LIMIT = 100;
+const DEBUG_LOG_ENABLED = process.env.TESSIE_MCP_DEBUG === "1";
+
+function assertResultsArray<T>(data: unknown, context: string): T[] {
+  if (Array.isArray(data)) {
+    return data as T[];
+  }
+  if (data && typeof data === "object" && "results" in data) {
+    const maybeResults = (data as { results?: unknown }).results;
+    if (Array.isArray(maybeResults)) {
+      return maybeResults as T[];
+    }
+  }
+  throw new Error(`Unexpected response format from ${context}`);
+}
 
 export interface DateRange {
   start?: string;
@@ -21,6 +35,14 @@ export class TessieClient {
   private client: AxiosInstance;
   private maxRetries = 3;
   private baseDelayMs = 500;
+  private debugEnabled = DEBUG_LOG_ENABLED;
+
+  private logSafeDebug(message: string, meta: Record<string, unknown> = {}) {
+    if (!this.debugEnabled) return;
+    const safeMeta = { ...meta };
+    delete (safeMeta as any).headers;
+    console.debug(`[TessieClient] ${message}`, safeMeta);
+  }
 
   constructor(apiKey: string) {
     this.client = axios.create({
@@ -42,6 +64,12 @@ export class TessieClient {
       } catch (error) {
         attempt += 1;
         const status = (error as any)?.response?.status;
+        this.logSafeDebug("request failed", {
+          context,
+          attempt,
+          status,
+          url: (error as any)?.config?.url,
+        });
         const retriable = status === 429 || (status && status >= 500);
         if (!retriable || attempt >= this.maxRetries) {
           throw toMcpError(error, context);
@@ -61,14 +89,7 @@ export class TessieClient {
       const response = await this.client.get<TessieVehicleSummary[] | { results: TessieVehicleSummary[] }>("/vehicles", {
         params,
       });
-      const data: unknown = response.data;
-      if (data && typeof data === "object" && "results" in data) {
-        const maybeResults = (data as { results?: unknown }).results;
-        if (Array.isArray(maybeResults)) {
-          return maybeResults as TessieVehicleSummary[];
-        }
-      }
-      return data as TessieVehicleSummary[];
+      return assertResultsArray<TessieVehicleSummary>(response.data, "listVehicles");
     }, "listVehicles");
   }
 
@@ -116,14 +137,7 @@ export class TessieClient {
         params.limit = String(bounded);
       }
       const response = await this.client.get<TessieDrive[] | { results: TessieDrive[] }>(`/${vin}/drives`, { params });
-      const data: unknown = response.data;
-      if (data && typeof data === "object" && "results" in data) {
-        const maybeResults = (data as { results?: unknown }).results;
-        if (Array.isArray(maybeResults)) {
-          return maybeResults as TessieDrive[];
-        }
-      }
-      return data as TessieDrive[];
+      return assertResultsArray<TessieDrive>(response.data, "getDrives");
     }, "getDrives");
   }
 

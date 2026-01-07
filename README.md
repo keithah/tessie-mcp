@@ -41,3 +41,5 @@ Non-destructive actions like `flash_lights` / `honk` skip confirmation.
 - API references cached in `docs/llms-full.txt` and `docs/tessie-api-metadata.json` for offline context.
 - Uses TypeScript MCP SDK and Tessie HTTPS API; all state stays in Tessie. Undo/confirmation is enforced in `manage_vehicle_command`.
 - MCP design references: see `docs/glama-links.md` for glama.ai best-practice articles.
+- Speed-limit operations accept `speed_limit_pin` (sensitive); avoid logging or sharing it.
+- Optional debug logging: set `TESSIE_MCP_DEBUG=1` to emit request failures with URLs/status only (no headers/API keys); retry/backoff is built-in for 429/5xx responses.
