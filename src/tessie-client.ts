@@ -10,6 +10,7 @@ import {
 const DEFAULT_TIMEOUT_MS = 30000;
 const MAX_DRIVE_LIMIT = 100;
 const DEFAULT_MAX_CACHE_SIZE = 200;
+const CACHE_TTL_JITTER_RATIO = 0.1; // +/-10% jitter to avoid stampedes
 const DEBUG_LOG_ENABLED =
   process.env.TESSIE_MCP_DEBUG === "1" || process.env.TESSIE_MCP_DEBUG === "true";
 const VEHICLE_LIST_TTL_MS = 30000;
@@ -38,11 +39,11 @@ function assertResultsArray<T>(
     throw new Error(`Unexpected response format from ${context}`);
   }
   for (const item of items) {
-    const isValidShape = validate?.(item) ?? (item !== null &&
-      (typeof item === "object" ||
-        typeof item === "string" ||
-        typeof item === "number" ||
-        typeof item === "boolean"));
+    const isValidShape =
+      validate?.(item) ??
+      (item !== null &&
+        typeof item === "object" &&
+        !Array.isArray(item));
     if (!isValidShape) {
       throw new Error(`Unexpected item shape from ${context}`);
     }
@@ -152,11 +153,20 @@ export class TessieClient {
     }
     const promise = (async () => {
       const value = await fetcher();
+      // apply jitter to spread expirations
+      const jitter = 1 + (Math.random() * 2 - 1) * CACHE_TTL_JITTER_RATIO;
+      const expires = Date.now() + Math.max(0, Math.floor(ttlMs * jitter));
       if (this.cache.size >= this.maxCacheSize) {
         const oldest = this.cache.keys().next().value;
         if (oldest) this.cache.delete(oldest);
       }
-      this.cache.set(key, { expires: Date.now() + ttlMs, value });
+      this.cache.set(key, { expires, value });
+      // enforce size after insert in case concurrent writes interleave
+      while (this.cache.size > this.maxCacheSize) {
+        const oldest = this.cache.keys().next().value;
+        if (!oldest) break;
+        this.cache.delete(oldest);
+      }
       return value;
     })();
     this.inFlight.set(key, promise);

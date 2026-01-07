@@ -44,7 +44,7 @@ describe("TessieClient guards and bounds", () => {
     await client.listVehicles();
     expect(getMock).toHaveBeenCalledTimes(1);
 
-    jest.advanceTimersByTime(31000);
+    jest.advanceTimersByTime(40000); // allow jittered TTL to expire
     await client.listVehicles();
     expect(getMock).toHaveBeenCalledTimes(2);
     jest.useRealTimers();
