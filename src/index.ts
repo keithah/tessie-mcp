@@ -10,6 +10,11 @@ import {
   toStateSummary,
   toVehicleListItem,
 } from "./mappers.ts";
+import {
+  TessieBatteryState,
+  TessieDrive,
+  TessieVehicleState,
+} from "./types.ts";
 
 export const configSchema = z.object({
   TESSIE_API_KEY: z
@@ -21,6 +26,8 @@ export const configSchema = z.object({
 export function getTool(server: McpServer, name: string) {
   return (server as any)._registeredTools?.[name];
 }
+
+const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
 const operations = [
   "lock",
@@ -52,6 +59,8 @@ const operations = [
 ] as const;
 
 const SAFE_OPERATIONS: Operation[] = ["flash_lights", "honk", "wake"];
+const LIST_LIMIT = 12;
+const PATH_POINT_LIMIT = 200;
 
 type Operation = (typeof operations)[number];
 
@@ -211,7 +220,13 @@ function ensureRange(
   }
 }
 
-export default function createServer({ config }: { config: z.infer<typeof configSchema> }) {
+export default function createServer({
+  config,
+  client: clientOverride,
+}: {
+  config: z.infer<typeof configSchema>;
+  client?: TessieClient;
+}) {
   const apiKey = config.TESSIE_API_KEY.trim();
   const server = new McpServer({
     name: "tessie-mcp-server",
@@ -219,7 +234,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     version: "2.0.0",
   });
 
-  const client = new TessieClient(apiKey);
+  const client = clientOverride ?? new TessieClient(apiKey);
 
   server.tool(
     "get_active_context",
@@ -233,7 +248,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
         const items = vehicles.map((v) => toVehicleListItem(v));
 
         return wrapContent({
-          vehicles: summarizeList(items, 12),
+          vehicles: summarizeList(items, LIST_LIMIT),
           next_steps: [
             "Use fetch_vehicle_state to inspect a specific VIN.",
             "Use manage_vehicle_command to act safely with confirmation.",
@@ -250,11 +265,11 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "fetch_vehicle_state",
     "Fetch the latest vehicle state (location, climate, locks, battery snapshot).",
     {
-      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      vin: z.string().regex(VIN_REGEX, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
     },
     async ({ vin }) => {
       try {
-        const state: any = await client.getVehicleState(vin);
+        const state: TessieVehicleState = await client.getVehicleState(vin);
         const summary = toStateSummary(vin, state);
 
         return wrapContent({
@@ -271,11 +286,11 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "fetch_vehicle_battery",
     "Fetch battery and charging details for a vehicle.",
     {
-      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      vin: z.string().regex(VIN_REGEX, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
     },
     async ({ vin }) => {
       try {
-        const battery: any = await client.getVehicleBattery(vin);
+        const battery: TessieBatteryState = await client.getVehicleBattery(vin);
         return wrapContent({
           summary: toBatterySummary(vin, battery),
           battery,
@@ -290,14 +305,14 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "search_drives",
     "List recent drives for a vehicle (summary-first with optional date range).",
     {
-      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      vin: z.string().regex(VIN_REGEX, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
       start: z.string().optional().describe("ISO 8601 start timestamp."),
       end: z.string().optional().describe("ISO 8601 end timestamp."),
       limit: z.number().int().positive().optional().default(20),
     },
     async ({ vin, start, end, limit = 20 }) => {
       try {
-        const drives: any[] = await client.getDrives(vin, { start, end, limit });
+        const drives: TessieDrive[] = await client.getDrives(vin, { start, end, limit });
         const summaries = drives.map((drive) => toDriveSummary(drive));
 
         return wrapContent({
@@ -315,7 +330,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "get_driving_path",
     "Get driving path coordinates for a vehicle over a timeframe.",
     {
-      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      vin: z.string().regex(VIN_REGEX, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
       start: z.string().optional().describe("ISO 8601 start timestamp."),
       end: z.string().optional().describe("ISO 8601 end timestamp."),
     },
@@ -324,7 +339,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
         const path: any[] = await client.getDrivingPath(vin, { start, end });
         return wrapContent({
           vin,
-          points: summarizeList(path, 200),
+          points: summarizeList(path, PATH_POINT_LIMIT),
           guidance: "Use this polyline for mapping or anomaly detection.",
         });
       } catch (error) {
@@ -337,7 +352,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "manage_vehicle_command",
     "Composite command executor for Tessie vehicle actions (lock, charging, climate, speed limit, sentry).",
     {
-      vin: z.string().regex(/^[A-HJ-NPR-Z0-9]{17}$/i, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
+      vin: z.string().regex(VIN_REGEX, "VIN must be 17 alphanumeric characters (no I/O/Q).").describe("Vehicle VIN."),
       operation: z.enum(operations),
       params: z
         .object({
@@ -403,6 +418,9 @@ export default function createServer({ config }: { config: z.infer<typeof config
           operation === "clear_speed_limit_pin"
         ) {
           ensureNonEmptyString(params?.speed_limit_pin, "speed_limit_pin");
+        }
+        if (operation === "set_cabin_overheat_protection_temp") {
+          ensureRange(params?.cabin_overheat_temp_c, "cabin_overheat_temp_c", 15, 60);
         }
 
         const payload = config.buildPayload

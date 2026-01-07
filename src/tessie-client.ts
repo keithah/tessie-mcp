@@ -19,6 +19,8 @@ export type CommandPayload = Record<string, unknown>;
 
 export class TessieClient {
   private client: AxiosInstance;
+  private maxRetries = 3;
+  private baseDelayMs = 500;
 
   constructor(apiKey: string) {
     this.client = axios.create({
@@ -31,8 +33,27 @@ export class TessieClient {
     });
   }
 
+  private async withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
+    let attempt = 0;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        return await fn();
+      } catch (error) {
+        attempt += 1;
+        const status = (error as any)?.response?.status;
+        const retriable = status === 429 || (status && status >= 500);
+        if (!retriable || attempt >= this.maxRetries) {
+          throw toMcpError(error, context);
+        }
+        const delay = this.baseDelayMs * Math.pow(2, attempt - 1);
+        await new Promise((res) => setTimeout(res, delay));
+      }
+    }
+  }
+
   async listVehicles(options?: { onlyActive?: boolean }): Promise<TessieVehicleSummary[]> {
-    try {
+    return this.withRetry(async () => {
       const params: Record<string, unknown> = {};
       if (options?.onlyActive !== undefined) {
         params.only_active = options.onlyActive;
@@ -48,34 +69,28 @@ export class TessieClient {
         }
       }
       return data as TessieVehicleSummary[];
-    } catch (error) {
-      throw toMcpError(error, "listVehicles");
-    }
+    }, "listVehicles");
   }
 
   async getVehicleState(vin: string): Promise<TessieVehicleState> {
-    try {
+    return this.withRetry(async () => {
       const response = await this.client.get<TessieVehicleState>(`/${vin}/state`);
       return response.data;
-    } catch (error) {
-      throw toMcpError(error, "getVehicleState");
-    }
+    }, "getVehicleState");
   }
 
   async getVehicleBattery(vin: string): Promise<TessieBatteryState> {
-    try {
+    return this.withRetry(async () => {
       const response = await this.client.get<TessieBatteryState>(`/${vin}/battery`);
       return response.data;
-    } catch (error) {
-      throw toMcpError(error, "getVehicleBattery");
-    }
+    }, "getVehicleBattery");
   }
 
   async getHistoricalStates(
     vin: string,
     options: DateRange & { interval?: string },
   ) {
-    try {
+    return this.withRetry(async () => {
       const params: Record<string, string> = {};
       if (options.start) params.start = options.start;
       if (options.end) params.end = options.end;
@@ -85,16 +100,14 @@ export class TessieClient {
         { params },
       );
       return response.data;
-    } catch (error) {
-      throw toMcpError(error, "getHistoricalStates");
-    }
+    }, "getHistoricalStates");
   }
 
   async getDrives(
     vin: string,
     options: DateRange & { limit?: number },
   ): Promise<TessieDrive[]> {
-    try {
+    return this.withRetry(async () => {
       const params: Record<string, string> = {};
       if (options.start) params.start = options.start;
       if (options.end) params.end = options.end;
@@ -111,16 +124,14 @@ export class TessieClient {
         }
       }
       return data as TessieDrive[];
-    } catch (error) {
-      throw toMcpError(error, "getDrives");
-    }
+    }, "getDrives");
   }
 
   async getDrivingPath(
     vin: string,
     options: DateRange,
   ) {
-    try {
+    return this.withRetry(async () => {
       const params: Record<string, string> = {};
       if (options.start) params.start = options.start;
       if (options.end) params.end = options.end;
@@ -129,9 +140,7 @@ export class TessieClient {
         { params },
       );
       return response.data;
-    } catch (error) {
-      throw toMcpError(error, "getDrivingPath");
-    }
+    }, "getDrivingPath");
   }
 
   async sendCommand(
@@ -139,14 +148,12 @@ export class TessieClient {
     endpoint: string,
     payload: CommandPayload = {},
   ) {
-    try {
+    return this.withRetry(async () => {
       const response = await this.client.post<Record<string, unknown>>(
         `/${vin}/command/${endpoint}`,
         payload,
       );
       return response.data;
-    } catch (error) {
-      throw toMcpError(error, `sendCommand:${endpoint}`);
-    }
+    }, `sendCommand:${endpoint}`);
   }
 }
