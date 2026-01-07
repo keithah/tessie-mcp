@@ -1,6 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import { toMcpError } from "./errors.ts";
 
+const DEFAULT_TIMEOUT_MS = 30000;
+
 export type VehicleSummary = {
   vin: string;
   display_name?: string;
@@ -30,7 +32,7 @@ export class TessieClient {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      timeout: 30000,
+      timeout: DEFAULT_TIMEOUT_MS,
     });
   }
 

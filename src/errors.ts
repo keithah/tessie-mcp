@@ -26,6 +26,10 @@ function getSuggestionForStatus(status?: number) {
 export function toMcpError(error: unknown, context: string): McpError {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
+    const safeConfig = {
+      url: error.config?.url,
+      method: error.config?.method,
+    };
     return {
       isError: true,
       status,
@@ -34,8 +38,7 @@ export function toMcpError(error: unknown, context: string): McpError {
       suggestion: getSuggestionForStatus(status),
       details: {
         context,
-        url: error.config?.url,
-        method: error.config?.method,
+        request: safeConfig,
         data: error.response?.data,
       },
     };

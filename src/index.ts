@@ -182,6 +182,22 @@ function ensurePositive(value: number | undefined, name: string) {
   }
 }
 
+function ensureNumberProvided(
+  value: number | undefined,
+  name: string,
+  allowZero = false,
+) {
+  if (value === undefined || Number.isNaN(value) || (!allowZero && value <= 0)) {
+    throw new Error(`Missing or invalid ${name}`);
+  }
+}
+
+function ensureNonEmptyString(value: string | undefined, name: string) {
+  if (!value || !value.trim()) {
+    throw new Error(`Missing or invalid ${name}`);
+  }
+}
+
 export default function createServer({ config }: { config: z.infer<typeof configSchema> }) {
   const apiKey = config.TESSIE_API_KEY.trim();
   const server = new McpServer({
@@ -315,8 +331,14 @@ export default function createServer({ config }: { config: z.infer<typeof config
           charge_limit_percent: z.number().optional(),
           charging_amps: z.number().optional(),
           cabin_temp_c: z.number().optional(),
-          seat_position: z.number().optional().describe("Seat index per Tessie docs."),
-          seat_level: z.number().optional().describe("Heating/cooling level."),
+          seat_position: z
+            .number()
+            .optional()
+            .describe("Seat index per Tessie docs (0=driver,1=passenger,...)."),
+          seat_level: z
+            .number()
+            .optional()
+            .describe("Heating/cooling level (0-3)."),
           speed_limit_mph: z.number().optional(),
           speed_limit_pin: z.string().optional(),
           fan_only: z.boolean().optional(),
@@ -357,6 +379,17 @@ export default function createServer({ config }: { config: z.infer<typeof config
         }
         if (operation === "set_speed_limit") {
           ensurePositive(params?.speed_limit_mph, "speed_limit_mph");
+        }
+        if (operation === "set_seat_heating" || operation === "set_seat_cooling") {
+          ensureNumberProvided(params?.seat_position, "seat_position", true);
+          ensureNumberProvided(params?.seat_level, "seat_level", true);
+        }
+        if (
+          operation === "enable_speed_limit" ||
+          operation === "disable_speed_limit" ||
+          operation === "clear_speed_limit_pin"
+        ) {
+          ensureNonEmptyString(params?.speed_limit_pin, "speed_limit_pin");
         }
 
         const payload = config.buildPayload
