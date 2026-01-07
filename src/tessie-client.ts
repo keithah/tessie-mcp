@@ -9,7 +9,8 @@ import {
 
 const DEFAULT_TIMEOUT_MS = 30000;
 const MAX_DRIVE_LIMIT = 100;
-const DEBUG_LOG_ENABLED = process.env.TESSIE_MCP_DEBUG === "1";
+const DEBUG_LOG_ENABLED =
+  process.env.TESSIE_MCP_DEBUG === "1" || process.env.TESSIE_MCP_DEBUG === "true";
 const VEHICLE_LIST_TTL_MS = 30000;
 const VEHICLE_STATE_TTL_MS = 15000;
 const BATTERY_TTL_MS = 15000;
@@ -17,15 +18,30 @@ const DRIVES_TTL_MS = 30000;
 const DRIVING_PATH_TTL_MS = 30000;
 const HISTORICAL_STATE_TTL_MS = 30000;
 
-function assertResultsArray<T>(data: unknown, context: string): T[] {
+/**
+ * Asserts the API response is an array (or results-wrapped array). Optionally validates items.
+ * Does not deep-validate shapes unless a validator is provided.
+ */
+function assertResultsArray<T>(
+  data: unknown,
+  context: string,
+  validate?: (item: unknown) => item is T,
+): T[] {
+  let items: unknown;
   if (Array.isArray(data)) {
-    return data as T[];
+    items = data;
+  } else if (data && typeof data === "object" && "results" in data) {
+    items = (data as { results?: unknown }).results;
   }
-  if (data && typeof data === "object" && "results" in data) {
-    const maybeResults = (data as { results?: unknown }).results;
-    if (Array.isArray(maybeResults)) {
-      return maybeResults as T[];
+  if (Array.isArray(items)) {
+    if (validate) {
+      for (const item of items) {
+        if (!validate(item)) {
+          throw new Error(`Unexpected item shape from ${context}`);
+        }
+      }
     }
+    return items as T[];
   }
   throw new Error(`Unexpected response format from ${context}`);
 }
@@ -44,10 +60,25 @@ export class TessieClient {
   private debugEnabled = DEBUG_LOG_ENABLED;
   private cache = new Map<string, { expires: number; value: unknown }>();
 
+  private sanitizeMetaDeep(value: unknown): unknown {
+    const SENSITIVE_KEYS = ["headers", "authorization", "auth", "token", "password", "apikey", "api_key"];
+    if (Array.isArray(value)) {
+      return value.map((v) => this.sanitizeMetaDeep(v));
+    }
+    if (value && typeof value === "object") {
+      const clone: Record<string, unknown> = {};
+      for (const [key, val] of Object.entries(value)) {
+        if (SENSITIVE_KEYS.includes(key.toLowerCase())) continue;
+        clone[key] = this.sanitizeMetaDeep(val);
+      }
+      return clone;
+    }
+    return value;
+  }
+
   private logSafeDebug(message: string, meta: Record<string, unknown> = {}) {
     if (!this.debugEnabled) return;
-    const safeMeta = { ...meta };
-    delete (safeMeta as any).headers;
+    const safeMeta = this.sanitizeMetaDeep(meta);
     console.debug(`[TessieClient] ${message}`, safeMeta);
   }
 

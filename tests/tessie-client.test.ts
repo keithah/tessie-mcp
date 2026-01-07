@@ -12,6 +12,7 @@ describe("TessieClient guards and bounds", () => {
       isError: true,
       message: expect.stringContaining("Unexpected response format"),
       details: { context: "listVehicles" },
+      retriable: false,
     });
   });
 

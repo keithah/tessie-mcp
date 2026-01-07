@@ -83,4 +83,14 @@ describe("manage_vehicle_command validation", () => {
     const payload = JSON.parse(result.content[0].text);
     expect(payload.message).toMatch(/cabin_overheat_on/);
   });
+
+  it("rejects non-boolean cabin_overheat_on before defaults apply", async () => {
+    expect(() =>
+      tool.inputSchema.parse({
+        vin,
+        operation: "set_cabin_overheat_protection",
+        params: { cabin_overheat_on: "yes" as any, confirm: true },
+      }),
+    ).toThrow(/boolean/);
+  });
 });

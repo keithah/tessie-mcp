@@ -172,8 +172,8 @@ const commandMap: Record<
   set_cabin_overheat_protection: {
     endpoint: "set_cabin_overheat_protection",
     buildPayload: (p) => ({
-      on: p?.cabin_overheat_on ?? false,
-      fan_only: p?.fan_only ?? false,
+      on: p?.cabin_overheat_on,
+      fan_only: p?.fan_only,
       wait_for_completion: p?.wait_for_completion ?? true,
     }),
   },
@@ -222,7 +222,7 @@ function ensureRange(
 }
 
 function ensureBoolean(value: boolean | undefined, name: string) {
-  if (value === undefined) {
+  if (value === undefined || typeof value !== "boolean") {
     throw new Error(`Missing or invalid ${name}`);
   }
 }
