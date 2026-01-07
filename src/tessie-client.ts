@@ -10,6 +10,12 @@ import {
 const DEFAULT_TIMEOUT_MS = 30000;
 const MAX_DRIVE_LIMIT = 100;
 const DEBUG_LOG_ENABLED = process.env.TESSIE_MCP_DEBUG === "1";
+const VEHICLE_LIST_TTL_MS = 30000;
+const VEHICLE_STATE_TTL_MS = 15000;
+const BATTERY_TTL_MS = 15000;
+const DRIVES_TTL_MS = 30000;
+const DRIVING_PATH_TTL_MS = 30000;
+const HISTORICAL_STATE_TTL_MS = 30000;
 
 function assertResultsArray<T>(data: unknown, context: string): T[] {
   if (Array.isArray(data)) {
@@ -36,12 +42,48 @@ export class TessieClient {
   private maxRetries = 3;
   private baseDelayMs = 500;
   private debugEnabled = DEBUG_LOG_ENABLED;
+  private cache = new Map<string, { expires: number; value: unknown }>();
 
   private logSafeDebug(message: string, meta: Record<string, unknown> = {}) {
     if (!this.debugEnabled) return;
     const safeMeta = { ...meta };
     delete (safeMeta as any).headers;
     console.debug(`[TessieClient] ${message}`, safeMeta);
+  }
+
+  private serializeParams(params?: Record<string, unknown> | DateRange) {
+    if (!params) return "";
+    const entries = Object.entries(params as Record<string, unknown>).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+    return JSON.stringify(Object.fromEntries(entries));
+  }
+
+  private cacheKey(kind: string, ...parts: string[]) {
+    return [kind, ...parts].join(":");
+  }
+
+  private async cached<T>(key: string, ttlMs: number, fetcher: () => Promise<T>): Promise<T> {
+    const now = Date.now();
+    const cached = this.cache.get(key);
+    if (cached && cached.expires > now) {
+      return cached.value as T;
+    }
+    const value = await fetcher();
+    this.cache.set(key, { expires: now + ttlMs, value });
+    return value;
+  }
+
+  private invalidate(predicate: (key: string) => boolean) {
+    for (const key of this.cache.keys()) {
+      if (predicate(key)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  private invalidateVin(vin: string) {
+    this.invalidate((key) => key.includes(`:${vin}`));
   }
 
   constructor(apiKey: string) {
@@ -81,80 +123,95 @@ export class TessieClient {
   }
 
   async listVehicles(options?: { onlyActive?: boolean }): Promise<TessieVehicleSummary[]> {
-    return this.withRetry(async () => {
-      const params: Record<string, unknown> = {};
-      if (options?.onlyActive !== undefined) {
-        params.only_active = options.onlyActive;
-      }
-      const response = await this.client.get<TessieVehicleSummary[] | { results: TessieVehicleSummary[] }>("/vehicles", {
-        params,
-      });
-      return assertResultsArray<TessieVehicleSummary>(response.data, "listVehicles");
-    }, "listVehicles");
+    const key = this.cacheKey("vehicles", options?.onlyActive ? "active" : "all");
+    return this.cached(key, VEHICLE_LIST_TTL_MS, () =>
+      this.withRetry(async () => {
+        const params: Record<string, unknown> = {};
+        if (options?.onlyActive !== undefined) {
+          params.only_active = options.onlyActive;
+        }
+        const response = await this.client.get<TessieVehicleSummary[] | { results: TessieVehicleSummary[] }>(
+          "/vehicles",
+          {
+            params,
+          },
+        );
+        return assertResultsArray<TessieVehicleSummary>(response.data, "listVehicles");
+      }, "listVehicles"),
+    );
   }
 
   async getVehicleState(vin: string): Promise<TessieVehicleState> {
-    return this.withRetry(async () => {
-      const response = await this.client.get<TessieVehicleState>(`/${vin}/state`);
-      return response.data;
-    }, "getVehicleState");
+    const key = this.cacheKey("state", vin);
+    return this.cached(key, VEHICLE_STATE_TTL_MS, () =>
+      this.withRetry(async () => {
+        const response = await this.client.get<TessieVehicleState>(`/${vin}/state`);
+        return response.data;
+      }, "getVehicleState"),
+    );
   }
 
   async getVehicleBattery(vin: string): Promise<TessieBatteryState> {
-    return this.withRetry(async () => {
-      const response = await this.client.get<TessieBatteryState>(`/${vin}/battery`);
-      return response.data;
-    }, "getVehicleBattery");
+    const key = this.cacheKey("battery", vin);
+    return this.cached(key, BATTERY_TTL_MS, () =>
+      this.withRetry(async () => {
+        const response = await this.client.get<TessieBatteryState>(`/${vin}/battery`);
+        return response.data;
+      }, "getVehicleBattery"),
+    );
   }
 
   async getHistoricalStates(
     vin: string,
     options: DateRange & { interval?: string },
   ) {
-    return this.withRetry(async () => {
-      const params: Record<string, string> = {};
-      if (options.start) params.start = options.start;
-      if (options.end) params.end = options.end;
-      if (options.interval) params.interval = options.interval;
-      const response = await this.client.get<Record<string, unknown>[]>(
-        `/${vin}/states`,
-        { params },
-      );
-      return response.data;
-    }, "getHistoricalStates");
+    const key = this.cacheKey("history", vin, this.serializeParams(options));
+    return this.cached(key, HISTORICAL_STATE_TTL_MS, () =>
+      this.withRetry(async () => {
+        const params: Record<string, string> = {};
+        if (options.start) params.start = options.start;
+        if (options.end) params.end = options.end;
+        if (options.interval) params.interval = options.interval;
+        const response = await this.client.get<Record<string, unknown>[]>(`/${vin}/states`, { params });
+        return response.data;
+      }, "getHistoricalStates"),
+    );
   }
 
   async getDrives(
     vin: string,
     options: DateRange & { limit?: number },
   ): Promise<TessieDrive[]> {
-    return this.withRetry(async () => {
-      const params: Record<string, string> = {};
-      if (options.start) params.start = options.start;
-      if (options.end) params.end = options.end;
-      if (options.limit !== undefined) {
-        const bounded = Math.max(1, Math.min(options.limit, MAX_DRIVE_LIMIT));
-        params.limit = String(bounded);
-      }
-      const response = await this.client.get<TessieDrive[] | { results: TessieDrive[] }>(`/${vin}/drives`, { params });
-      return assertResultsArray<TessieDrive>(response.data, "getDrives");
-    }, "getDrives");
+    const key = this.cacheKey("drives", vin, this.serializeParams(options));
+    return this.cached(key, DRIVES_TTL_MS, () =>
+      this.withRetry(async () => {
+        const params: Record<string, string> = {};
+        if (options.start) params.start = options.start;
+        if (options.end) params.end = options.end;
+        if (options.limit !== undefined) {
+          const bounded = Math.max(1, Math.min(options.limit, MAX_DRIVE_LIMIT));
+          params.limit = String(bounded);
+        }
+        const response = await this.client.get<TessieDrive[] | { results: TessieDrive[] }>(`/${vin}/drives`, { params });
+        return assertResultsArray<TessieDrive>(response.data, "getDrives");
+      }, "getDrives"),
+    );
   }
 
   async getDrivingPath(
     vin: string,
     options: DateRange,
   ) {
-    return this.withRetry(async () => {
-      const params: Record<string, string> = {};
-      if (options.start) params.start = options.start;
-      if (options.end) params.end = options.end;
-      const response = await this.client.get<Record<string, unknown>[]>(
-        `/${vin}/path`,
-        { params },
-      );
-      return response.data;
-    }, "getDrivingPath");
+    const key = this.cacheKey("path", vin, this.serializeParams(options));
+    return this.cached(key, DRIVING_PATH_TTL_MS, () =>
+      this.withRetry(async () => {
+        const params: Record<string, string> = {};
+        if (options.start) params.start = options.start;
+        if (options.end) params.end = options.end;
+        const response = await this.client.get<Record<string, unknown>[]>(`/${vin}/path`, { params });
+        return response.data;
+      }, "getDrivingPath"),
+    );
   }
 
   async sendCommand(
@@ -162,12 +219,11 @@ export class TessieClient {
     endpoint: string,
     payload: CommandPayload = {},
   ) {
-    return this.withRetry(async () => {
-      const response = await this.client.post<Record<string, unknown>>(
-        `/${vin}/command/${endpoint}`,
-        payload,
-      );
+    const result = await this.withRetry(async () => {
+      const response = await this.client.post<Record<string, unknown>>(`/${vin}/command/${endpoint}`, payload);
       return response.data;
     }, `sendCommand:${endpoint}`);
+    this.invalidateVin(vin);
+    return result;
   }
 }
