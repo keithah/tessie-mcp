@@ -69,19 +69,23 @@ export class TessieClient {
   private cache = new Map<string, CacheEntry>();
   private inFlight = new Map<string, Promise<unknown>>();
 
-  private sanitizeMetaDeep(value: unknown): unknown {
+  private sanitizeMetaDeep(value: unknown, visited = new WeakSet<object>()): unknown {
     const SENSITIVE_KEYS = ["headers", "authorization", "auth", "token", "password", "apikey", "api_key"];
     if (value instanceof Error) {
       return { name: value.name, message: value.message };
     }
     if (Array.isArray(value)) {
-      return value.map((v) => this.sanitizeMetaDeep(v));
+      return value.map((v) => this.sanitizeMetaDeep(v, visited));
     }
     if (value && typeof value === "object") {
+      if (visited.has(value as object)) {
+        return "[Circular]";
+      }
+      visited.add(value as object);
       const clone: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(value)) {
         if (SENSITIVE_KEYS.includes(key.toLowerCase())) continue;
-        clone[key] = this.sanitizeMetaDeep(val);
+        clone[key] = this.sanitizeMetaDeep(val, visited);
       }
       return clone;
     }
@@ -135,7 +139,7 @@ export class TessieClient {
       return JSON.stringify(Object.fromEntries(sorted));
     } catch (error) {
       console.warn("Failed to serialize params for cache key", this.sanitizeMetaDeep(error));
-      return JSON.stringify(params);
+      return "__UNSERIALIZABLE_PARAMS__";
     }
   }
 
@@ -191,6 +195,10 @@ export class TessieClient {
   private invalidateVin(vin: string) {
     for (const key of this.cache.keys()) {
       const segments = key.split(":");
+      if (segments[0] === "vehicles") {
+        this.cache.delete(key);
+        continue;
+      }
       if (segments.length >= 2 && segments[1] === vin) {
         this.cache.delete(key);
       }
