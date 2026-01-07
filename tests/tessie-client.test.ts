@@ -138,6 +138,7 @@ describe("TessieClient guards and bounds", () => {
       if (attempt < 3) {
         const error: any = new Error("fail");
         error.response = { status: 500 };
+        error.isAxiosError = true;
         return Promise.reject(error);
       }
       return Promise.resolve({ data: {} });

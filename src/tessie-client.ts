@@ -99,8 +99,7 @@ export class TessieClient {
       axiosInstance?: AxiosInstance;
     },
   ) {
-    this.debugEnabled =
-      options?.debugEnabled ?? (process.env.TESSIE_MCP_DEBUG === "1" || process.env.TESSIE_MCP_DEBUG === "true");
+    this.debugEnabled = options?.debugEnabled ?? DEBUG_LOG_ENABLED;
     this.maxCacheSize = options?.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
     this.client =
       options?.axiosInstance ??
@@ -117,13 +116,6 @@ export class TessieClient {
   private serializeParams(params?: Record<string, unknown> | DateRange) {
     if (!params) return "";
     const entries = Object.entries(params as Record<string, unknown>);
-    if (entries.length === 0) return "";
-    if (entries.length === 1) {
-      const [key, value] = entries[0];
-      const serializedValue =
-        value === null || typeof value !== "object" ? String(value) : JSON.stringify(value);
-      return `${key}:${serializedValue}`;
-    }
     const sorted = entries.sort(([a], [b]) => a.localeCompare(b));
     return JSON.stringify(Object.fromEntries(sorted));
   }
@@ -144,12 +136,11 @@ export class TessieClient {
     }
     const promise = (async () => {
       const value = await fetcher();
-      this.cache.set(key, { expires: Date.now() + ttlMs, value });
-      while (this.cache.size > this.maxCacheSize) {
+      if (this.cache.size >= this.maxCacheSize) {
         const oldest = this.cache.keys().next().value;
-        if (!oldest) break;
-        this.cache.delete(oldest);
+        if (oldest) this.cache.delete(oldest);
       }
+      this.cache.set(key, { expires: Date.now() + ttlMs, value });
       return value;
     })();
     this.inFlight.set(key, promise);
