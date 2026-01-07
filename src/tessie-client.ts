@@ -34,17 +34,20 @@ function assertResultsArray<T>(
   } else if (data && typeof data === "object" && "results" in data) {
     items = (data as { results?: unknown }).results;
   }
-  if (Array.isArray(items)) {
-    if (validate) {
-      for (const item of items) {
-        if (!validate(item)) {
-          throw new Error(`Unexpected item shape from ${context}`);
-        }
-      }
-    }
-    return items as T[];
+  if (!Array.isArray(items)) {
+    throw new Error(`Unexpected response format from ${context}`);
   }
-  throw new Error(`Unexpected response format from ${context}`);
+  for (const item of items) {
+    const isValidShape = validate?.(item) ?? (item !== null &&
+      (typeof item === "object" ||
+        typeof item === "string" ||
+        typeof item === "number" ||
+        typeof item === "boolean"));
+    if (!isValidShape) {
+      throw new Error(`Unexpected item shape from ${context}`);
+    }
+  }
+  return items as T[];
 }
 
 export interface DateRange {
@@ -61,9 +64,13 @@ export class TessieClient {
   private debugEnabled = DEBUG_LOG_ENABLED;
   private maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
   private cache = new Map<string, { expires: number; value: unknown }>();
+  private inFlight = new Map<string, Promise<unknown>>();
 
   private sanitizeMetaDeep(value: unknown): unknown {
     const SENSITIVE_KEYS = ["headers", "authorization", "auth", "token", "password", "apikey", "api_key"];
+    if (value instanceof Error) {
+      return { name: value.name, message: value.message };
+    }
     if (Array.isArray(value)) {
       return value.map((v) => this.sanitizeMetaDeep(v));
     }
@@ -113,7 +120,9 @@ export class TessieClient {
     if (entries.length === 0) return "";
     if (entries.length === 1) {
       const [key, value] = entries[0];
-      return `${key}:${String(value)}`;
+      const serializedValue =
+        value === null || typeof value !== "object" ? String(value) : JSON.stringify(value);
+      return `${key}:${serializedValue}`;
     }
     const sorted = entries.sort(([a], [b]) => a.localeCompare(b));
     return JSON.stringify(Object.fromEntries(sorted));
@@ -129,14 +138,26 @@ export class TessieClient {
     if (cached && cached.expires > now) {
       return cached.value as T;
     }
-    const value = await fetcher();
-    this.cache.set(key, { expires: now + ttlMs, value });
-    while (this.cache.size > this.maxCacheSize) {
-      const oldest = this.cache.keys().next().value;
-      if (!oldest) break;
-      this.cache.delete(oldest);
+    const pending = this.inFlight.get(key);
+    if (pending) {
+      return pending as Promise<T>;
     }
-    return value;
+    const promise = (async () => {
+      const value = await fetcher();
+      this.cache.set(key, { expires: Date.now() + ttlMs, value });
+      while (this.cache.size > this.maxCacheSize) {
+        const oldest = this.cache.keys().next().value;
+        if (!oldest) break;
+        this.cache.delete(oldest);
+      }
+      return value;
+    })();
+    this.inFlight.set(key, promise);
+    try {
+      return await promise;
+    } finally {
+      this.inFlight.delete(key);
+    }
   }
 
   private invalidate(predicate: (key: string) => boolean) {
@@ -180,7 +201,10 @@ export class TessieClient {
   }
 
   async listVehicles(options?: { onlyActive?: boolean }): Promise<TessieVehicleSummary[]> {
-    const key = this.cacheKey("vehicles", options?.onlyActive ? "active" : "all");
+    const key = this.cacheKey(
+      "vehicles",
+      options?.onlyActive === true ? "active" : options?.onlyActive === false ? "inactive" : "all",
+    );
     return this.cached(key, VEHICLE_LIST_TTL_MS, () =>
       this.withRetry(async () => {
         const params: Record<string, unknown> = {};
