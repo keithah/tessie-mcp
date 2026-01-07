@@ -22,7 +22,7 @@ const HISTORICAL_STATE_TTL_MS = 30000;
 
 /**
  * Asserts the API response is an array (or results-wrapped array). Optionally validates items.
- * Does not deep-validate shapes unless a validator is provided.
+ * NOTE: By default this only checks that items are non-null objects; for strict typing pass a validator.
  */
 function assertResultsArray<T>(
   data: unknown,
@@ -58,13 +58,15 @@ export interface DateRange {
 
 export type CommandPayload = Record<string, unknown>;
 
+type CacheEntry = { expires: number; value: unknown; touched: number };
+
 export class TessieClient {
   private client: AxiosInstance;
   private maxRetries = 3;
   private baseDelayMs = 500;
   private debugEnabled = DEBUG_LOG_ENABLED;
   private maxCacheSize = DEFAULT_MAX_CACHE_SIZE;
-  private cache = new Map<string, { expires: number; value: unknown }>();
+  private cache = new Map<string, CacheEntry>();
   private inFlight = new Map<string, Promise<unknown>>();
 
   private sanitizeMetaDeep(value: unknown): unknown {
@@ -156,17 +158,8 @@ export class TessieClient {
       // apply jitter to spread expirations
       const jitter = 1 + (Math.random() * 2 - 1) * CACHE_TTL_JITTER_RATIO;
       const expires = Date.now() + Math.max(0, Math.floor(ttlMs * jitter));
-      if (this.cache.size >= this.maxCacheSize) {
-        const oldest = this.cache.keys().next().value;
-        if (oldest) this.cache.delete(oldest);
-      }
-      this.cache.set(key, { expires, value });
-      // enforce size after insert in case concurrent writes interleave
-      while (this.cache.size > this.maxCacheSize) {
-        const oldest = this.cache.keys().next().value;
-        if (!oldest) break;
-        this.cache.delete(oldest);
-      }
+      this.cache.set(key, { expires, value, touched: Date.now() });
+      this.pruneCache();
       return value;
     })();
     this.inFlight.set(key, promise);
@@ -177,19 +170,31 @@ export class TessieClient {
     }
   }
 
-  private invalidate(predicate: (key: string) => boolean) {
-    for (const key of this.cache.keys()) {
-      if (predicate(key)) {
+  private pruneCache() {
+    const now = Date.now();
+    // drop expired first
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.expires <= now) {
         this.cache.delete(key);
       }
+    }
+    // LRU eviction if still oversized
+    if (this.cache.size <= this.maxCacheSize) return;
+    const entries = Array.from(this.cache.entries()).sort((a, b) => a[1].touched - b[1].touched);
+    const over = this.cache.size - this.maxCacheSize;
+    for (let i = 0; i < over; i += 1) {
+      const [key] = entries[i];
+      this.cache.delete(key);
     }
   }
 
   private invalidateVin(vin: string) {
-    this.invalidate((key) => {
+    for (const key of this.cache.keys()) {
       const segments = key.split(":");
-      return segments.length >= 2 && segments[1] === vin;
-    });
+      if (segments.length >= 2 && segments[1] === vin) {
+        this.cache.delete(key);
+      }
+    }
   }
 
   private async withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
@@ -317,7 +322,6 @@ export class TessieClient {
     endpoint: string,
     payload: CommandPayload = {},
   ) {
-    this.invalidateVin(vin);
     const result = await this.withRetry(async () => {
       const response = await this.client.post<Record<string, unknown>>(`/${vin}/command/${endpoint}`, payload);
       return response.data;
