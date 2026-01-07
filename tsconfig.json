@@ -8,6 +8,7 @@
     "strict": true,
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,

@@ -18,7 +18,7 @@ export interface DateRange {
   end?: string;
 }
 
-type CommandPayload = Record<string, unknown>;
+export type CommandPayload = Record<string, unknown>;
 
 export class TessieClient {
   private client: AxiosInstance;

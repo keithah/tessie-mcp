@@ -1,5 +1,10 @@
 import "dotenv/config";
-import createServer from "../src/index.ts";
+import createServer, { getTool } from "../src/index.ts";
+import {
+  toBatterySummary,
+  toDriveSummary,
+  toVehicleListItem,
+} from "../src/mappers.ts";
 
 type ToolResult = { content?: Array<{ type: string; text?: string }> };
 
@@ -20,7 +25,7 @@ async function main() {
   const server = createServer({ config: { TESSIE_API_KEY: apiKey.trim() } });
 
   const invoke = async (name: string, params: Record<string, unknown>) => {
-    const tool = (server as any)._registeredTools?.[name];
+    const tool = getTool(server as any, name);
     if (!tool) throw new Error(`Tool not found: ${name}`);
     const parsed = tool.inputSchema?.parse ? tool.inputSchema.parse(params) : params;
     const result = await tool.callback(parsed);
@@ -42,13 +47,12 @@ async function main() {
   const state = await invoke("fetch_vehicle_state", { vin });
   console.log("fetch_vehicle_state summary:", (state as any)?.summary);
 
-  const battery = await invoke("fetch_vehicle_battery", { vin });
-  console.log("fetch_vehicle_battery summary:", (battery as any)?.summary);
+  const batteryRaw = await invoke("fetch_vehicle_battery", { vin });
+  console.log("fetch_vehicle_battery summary:", (batteryRaw as any)?.summary);
 
-  const drives = await invoke("search_drives", { vin, limit: 3 });
-  console.log("search_drives:", drives);
+  const drivesRaw = await invoke("search_drives", { vin, limit: 3 });
+  console.log("search_drives:", drivesRaw);
 
-  // Safe sample command (flash_lights) without confirmation
   const flash = await invoke("manage_vehicle_command", {
     vin,
     operation: "flash_lights",

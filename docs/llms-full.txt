@@ -34,13 +34,13 @@ Visit the [Tesla Fleet API Reference](https://developer.tesla.com/docs/fleet-api
 
 <CodeGroup>
   ```bash bash theme={null}
-  curl -H "Authorization: ROTATING_TESLA_OAUTH_ACCESS_TOKEN" \
+  curl -H "Authorization: <ROTATING_TESLA_OAUTH_ACCESS_TOKEN>" \
   	https://fleet-api.prd.na.vn.cloud.tesla.com/api/1/vehicles
 
-  curl -H "Authorization: ROTATING_TESLA_OAUTH_ACCESS_TOKEN" \
+  curl -H "Authorization: <ROTATING_TESLA_OAUTH_ACCESS_TOKEN>" \
   	https://fleet-api.prd.eu.vn.cloud.tesla.com/api/1/vehicles
 
-  curl -H "Authorization: ROTATING_TESLA_OAUTH_ACCESS_TOKEN" \
+  curl -H "Authorization: <ROTATING_TESLA_OAUTH_ACCESS_TOKEN>" \
   	https://fleet-api.prd.cn.vn.cloud.tesla.cn/api/1/vehicles
   ```
 </CodeGroup>
@@ -1047,7 +1047,5 @@ Source: https://developer.tessie.com/reference/wake
 post /{vin}/wake
 Wakes the vehicle from sleep.
 
-Returns true after the vehicle is awake, or false after a 90 second timeout.
-
-
+Returns true after the vehicle is awake, or false after a 90-second timeout.
 

@@ -4,6 +4,12 @@ import { z } from "zod";
 import { TessieClient } from "./tessie-client.ts";
 import { wrapContent, summarizeList } from "./format.ts";
 import { toMcpError } from "./errors.ts";
+import {
+  toBatterySummary,
+  toDriveSummary,
+  toStateSummary,
+  toVehicleListItem,
+} from "./mappers.ts";
 
 export const configSchema = z.object({
   TESSIE_API_KEY: z
@@ -12,35 +18,44 @@ export const configSchema = z.object({
     .describe("Tessie API access token from https://dash.tessie.com/settings/api"),
 });
 
+export function getTool(server: McpServer, name: string) {
+  return (server as any)._registeredTools?.[name];
+}
+
+const operations = [
+  "lock",
+  "unlock",
+  "start_charging",
+  "stop_charging",
+  "set_charge_limit",
+  "set_charging_amps",
+  "set_temperature",
+  "start_climate",
+  "stop_climate",
+  "flash_lights",
+  "honk",
+  "wake",
+  "start_defrost",
+  "stop_defrost",
+  "start_steering_wheel_heater",
+  "stop_steering_wheel_heater",
+  "set_cabin_overheat_protection",
+  "set_cabin_overheat_protection_temp",
+  "enable_sentry_mode",
+  "disable_sentry_mode",
+  "enable_speed_limit",
+  "disable_speed_limit",
+  "clear_speed_limit_pin",
+  "set_seat_heating",
+  "set_seat_cooling",
+  "set_speed_limit",
+] as const;
+
+type Operation = (typeof operations)[number];
+
 type CommandInput = {
   vin: string;
-  operation:
-    | "lock"
-    | "unlock"
-    | "start_charging"
-    | "stop_charging"
-    | "set_charge_limit"
-    | "set_charging_amps"
-    | "set_temperature"
-    | "start_climate"
-    | "stop_climate"
-    | "flash_lights"
-    | "honk"
-    | "wake"
-    | "start_defrost"
-    | "stop_defrost"
-    | "start_steering_wheel_heater"
-    | "stop_steering_wheel_heater"
-    | "set_cabin_overheat_protection"
-    | "set_cabin_overheat_protection_temp"
-    | "enable_sentry_mode"
-    | "disable_sentry_mode"
-    | "enable_speed_limit"
-    | "disable_speed_limit"
-    | "clear_speed_limit_pin"
-    | "set_seat_heating"
-    | "set_seat_cooling"
-    | "set_speed_limit";
+  operation: Operation;
   params?: {
     charge_limit_percent?: number;
     charging_amps?: number;
@@ -53,6 +68,7 @@ type CommandInput = {
     cabin_overheat_on?: boolean;
     cabin_overheat_temp_c?: number;
     wait_for_completion?: boolean;
+    confirm?: boolean;
   };
 };
 
@@ -185,21 +201,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     async ({ only_active }) => {
       try {
         const vehicles = await client.listVehicles({ onlyActive: only_active });
-        const items = vehicles.map((v) => ({
-          vin: v.vin,
-          name:
-            v.display_name ||
-            (v.vehicle_state as any)?.vehicle_name ||
-            (v as any).last_state?.vehicle_state?.vehicle_name,
-          status:
-            v.state ||
-            (v.vehicle_state as any)?.state ||
-            (v as any).last_state?.state,
-          last_seen:
-            (v as any).last_seen ??
-            (v.vehicle_state as any)?.timestamp ??
-            (v as any).last_state?.timestamp,
-        }));
+        const items = vehicles.map((v) => toVehicleListItem(v));
 
         return wrapContent({
           vehicles: summarizeList(items, 12),
@@ -224,28 +226,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     async ({ vin }) => {
       try {
         const state: any = await client.getVehicleState(vin);
-        const summary = {
-          vin,
-          vehicle: state.vehicle_state?.vehicle_name ?? state.display_name,
-          locked: state.vehicle_state?.locked,
-          sentry_mode: state.vehicle_state?.sentry_mode,
-          odometer: state.vehicle_state?.odometer,
-          battery_level: state.charge_state?.battery_level ?? state.battery_level,
-          charging_state: state.charge_state?.charging_state ?? state.charging_state,
-          est_range_miles: state.charge_state?.est_battery_range ?? state.battery_range,
-          location: {
-            latitude: state.drive_state?.latitude ?? state.latitude,
-            longitude: state.drive_state?.longitude ?? state.longitude,
-            shift_state: state.drive_state?.shift_state,
-            speed: state.drive_state?.speed,
-          },
-          climate: {
-            inside_temp: state.climate_state?.inside_temp ?? state.inside_temp,
-            outside_temp: state.climate_state?.outside_temp ?? state.outside_temp,
-            climate_on: state.climate_state?.is_climate_on ?? state.is_climate_on,
-          },
-          timestamp: state.timestamp,
-        };
+        const summary = toStateSummary(vin, state);
 
         return wrapContent({
           summary,
@@ -267,13 +248,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
       try {
         const battery: any = await client.getVehicleBattery(vin);
         return wrapContent({
-          summary: {
-            vin,
-            level: battery.battery_level ?? battery.battery_level_percent,
-            estimated_range: battery.est_battery_range ?? battery.range,
-            charging_state: battery.charging_state,
-            time_to_full_charge: battery.time_to_full_charge,
-          },
+          summary: toBatterySummary(vin, battery),
           battery,
         });
       } catch (error) {
@@ -294,17 +269,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     async ({ vin, start, end, limit = 20 }) => {
       try {
         const drives: any[] = await client.getDrives(vin, { start, end, limit });
-        const summaries = drives.map((drive) => ({
-          id: drive.id ?? drive.import_id,
-          started_at: drive.started_at ?? drive.start_date,
-          ended_at: drive.ended_at ?? drive.end_date,
-          start: drive.starting_location ?? drive.start_address,
-          end: drive.ending_location ?? drive.end_address,
-          distance_miles: drive.odometer_distance ?? drive.distance_miles ?? drive.distance,
-          energy_used_kwh: drive.energy_used,
-          average_speed: drive.average_speed,
-          tag: drive.tag,
-        }));
+        const summaries = drives.map((drive) => toDriveSummary(drive));
 
         return wrapContent({
           vin,
@@ -344,34 +309,7 @@ export default function createServer({ config }: { config: z.infer<typeof config
     "Composite command executor for Tessie vehicle actions (lock, charging, climate, speed limit, sentry).",
     {
       vin: z.string().describe("Vehicle VIN."),
-      operation: z.enum([
-        "lock",
-        "unlock",
-        "start_charging",
-        "stop_charging",
-        "set_charge_limit",
-        "set_charging_amps",
-        "set_temperature",
-        "start_climate",
-        "stop_climate",
-        "flash_lights",
-        "honk",
-        "wake",
-        "start_defrost",
-        "stop_defrost",
-        "start_steering_wheel_heater",
-        "stop_steering_wheel_heater",
-        "set_cabin_overheat_protection",
-        "set_cabin_overheat_protection_temp",
-        "enable_sentry_mode",
-        "disable_sentry_mode",
-        "enable_speed_limit",
-        "disable_speed_limit",
-        "clear_speed_limit_pin",
-        "set_seat_heating",
-        "set_seat_cooling",
-        "set_speed_limit",
-      ]),
+      operation: z.enum(operations),
       params: z
         .object({
           charge_limit_percent: z.number().optional(),

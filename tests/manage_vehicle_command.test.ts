@@ -1,9 +1,9 @@
 import { z } from "zod";
-import createServer from "../src/index.ts";
+import createServer, { getTool } from "../src/index.ts";
 
 describe("manage_vehicle_command validation", () => {
   const server = createServer({ config: { TESSIE_API_KEY: "test-key" } });
-  const tool = (server as any)._registeredTools["manage_vehicle_command"];
+  const tool = getTool(server as any, "manage_vehicle_command");
 
   it("requires confirm for destructive operations", async () => {
     const input = tool.inputSchema.parse({
@@ -17,7 +17,7 @@ describe("manage_vehicle_command validation", () => {
     expect(payload.message).toMatch(/Confirmation required/);
   });
 
-  it("allows read-safe operations without confirm (flash)", async () => {
+  it("returns error payload when flash_lights fails with invalid key", async () => {
     const input = tool.inputSchema.parse({
       vin: "VIN123",
       operation: "flash_lights",
