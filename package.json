@@ -34,7 +34,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.18.2",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@smithery/sdk": "^1.6.4",
     "axios": "^1.6.0",
     "dotenv": "^17.2.2",
