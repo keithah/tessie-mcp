@@ -37,6 +37,8 @@ Non-destructive actions like `flash_lights` / `honk` skip confirmation.
 - Run with Compose: `docker compose up --build`
 - The HTTP transport listens on `http://localhost:8081/mcp`
 - MCP config schema is available at `http://localhost:8081/.well-known/mcp-config`
+- Example Nginx reverse-proxy config (HTTPS + bearer auth translation): `deploy/nginx/tessie-mcp.conf`
+- Example MCP client configs (direct + via Nginx): `deploy/mcp-client-example.json`
 
 This containerization only wraps the existing shttp transport. Server configuration and authentication remain the same as the upstream project.
 
