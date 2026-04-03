@@ -32,6 +32,14 @@ Non-destructive actions like `flash_lights` / `honk` skip confirmation.
 - Tests: `npm test` (includes command validation)
 - Smoke with live Tessie token: `npm run smoke` (raw client), `npm run smoke:tools` (MCP tools)
 
+## Docker
+- Build the image: `docker build -t tessie-mcp-server .`
+- Run with Compose: `docker compose up --build`
+- The HTTP transport listens on `http://localhost:8081/mcp`
+- MCP config schema is available at `http://localhost:8081/.well-known/mcp-config`
+
+This containerization only wraps the existing shttp transport. Server configuration and authentication remain the same as the upstream project.
+
 ## Smithery
 - Playground/dev tunnel: `npm run dev` or `npx @smithery/cli dev`
 - Transports: stdio (`npm run build:stdio`), shttp (`npm run build:shttp`, default for publish)

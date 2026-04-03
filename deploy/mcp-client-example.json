@@ -1,0 +1,30 @@
+{
+  "_comment": [
+    "Example MCP client configuration for tessie-mcp.",
+    "The server uses Smithery shttp transport — config values are passed as",
+    "query parameters (?accessToken=...) by the transport layer.",
+    "When running behind the provided Nginx reverse proxy, use bearer auth instead.",
+    "See deploy/nginx/tessie-mcp.conf for the proxy setup."
+  ],
+
+  "direct": {
+    "_comment": "Direct connection to the container (no Nginx). Token goes in the URL.",
+    "mcpServers": {
+      "tessie": {
+        "url": "http://localhost:8081/mcp?accessToken=YOUR_TESSIE_API_KEY"
+      }
+    }
+  },
+
+  "via_nginx": {
+    "_comment": "Connection through the Nginx reverse proxy. Token sent as a bearer header.",
+    "mcpServers": {
+      "tessie": {
+        "url": "https://YOUR_HOSTNAME:48378/mcp",
+        "headers": {
+          "Authorization": "Bearer YOUR_TESSIE_API_KEY"
+        }
+      }
+    }
+  }
+}
