@@ -19,6 +19,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
 COPY --from=build /app/.smithery/shttp /app/.smithery/shttp
+RUN chown -R node:node /app
+USER node
 
 EXPOSE 8081
 
