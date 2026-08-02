@@ -14,7 +14,7 @@
   },
   "keywords": ["mcp", "tessie", "tesla", "self-hosted"],
   "license": "MIT",
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.2",
     "express": "^5.1.0",

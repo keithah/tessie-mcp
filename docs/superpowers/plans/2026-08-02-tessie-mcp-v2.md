@@ -30,10 +30,10 @@
 - src/resources.ts: documented read-resource allowlist and query construction.
 - src/analysis.ts: bounded history aggregation.
 - src/commands.ts: operation allowlist, payload shaping, confirmation classification.
-- src/tools.ts: the five MCP tools.
+- src/tools.ts: VIN selection and the five MCP tools.
 - src/server.ts and src/index.ts: Streamable HTTP hosting and startup.
 - tests/*.test.ts: unit and authenticated transport integration tests.
-- Dockerfile, Compose files, reverse-proxy examples, README, env example, smoke script: operations.
+- Dockerfile, Compose files, reverse-proxy examples, README, and env example: operations.
 
 ### Task 1: Replace the legacy scaffold
 
@@ -93,13 +93,13 @@ Run: git add package.json package-lock.json tsconfig.json .gitignore .env.exampl
 ### Task 2: Add authenticated persistent vehicle selection
 
 **Files:**
-- Create: src/auth.ts, src/settings-store.ts, src/vehicle-selection.ts, tests/auth.test.ts, tests/settings-store.test.ts, tests/vehicle-selection.test.ts.
+- Create: src/auth.ts, src/settings-store.ts, tests/auth.test.ts, tests/settings-store.test.ts.
 
 **Interfaces:**
 - isAuthorized(header, token): boolean.
 - SettingsStore.getDefaultVin(): Promise<string | undefined>.
 - SettingsStore.setDefaultVin(vin): Promise<void>.
-- resolveVehicle(vin, store, configuredDefault): Promise<string>.
+- `resolveVin` in src/tools.ts resolves explicit, persisted, and configured defaults.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -116,7 +116,7 @@ it("persists selection across instances", async () => {
 
 - [ ] **Step 2: Verify RED**
 
-Run: npm test -- tests/auth.test.ts tests/settings-store.test.ts tests/vehicle-selection.test.ts
+Run: npm test -- tests/auth.test.ts tests/settings-store.test.ts
 Expected: failure because modules do not exist.
 
 - [ ] **Step 3: Implement auth and JSON settings**
@@ -125,12 +125,12 @@ Use Buffer lengths plus timingSafeEqual for bearer comparison. Write settings as
 
 - [ ] **Step 4: Verify GREEN**
 
-Run: npm test -- tests/auth.test.ts tests/settings-store.test.ts tests/vehicle-selection.test.ts && npm test
+Run: npm test -- tests/auth.test.ts tests/settings-store.test.ts && npm test
 Expected: exit 0.
 
 - [ ] **Step 5: Commit**
 
-Run: git add src/auth.ts src/settings-store.ts src/vehicle-selection.ts tests && git commit -m "feat: authenticate clients and persist selected vehicle"
+Run: git add src/auth.ts src/settings-store.ts tests && git commit -m "feat: authenticate clients and persist selected vehicle"
 
 ### Task 3: Implement Tessie reads and bounded analysis
 
@@ -224,7 +224,7 @@ Run: git add src/commands.ts src/tools.ts tests && git commit -m "feat: add focu
 ### Task 5: Host Streamable HTTP MCP and package deployments
 
 **Files:**
-- Create: src/server.ts, src/index.ts, tests/server.test.ts, Dockerfile, docker-compose.yml, docker-compose.tunnel.yml, examples/nginx.conf, examples/Caddyfile, scripts/smoke.ts, tests/deployment.test.ts.
+- Create: src/server.ts, src/index.ts, Dockerfile, docker-compose.yml, docker-compose.tunnel.yml, examples/nginx.conf, examples/Caddyfile.
 - Modify: README.md, .env.example.
 
 **Interfaces:**

@@ -6,11 +6,16 @@ export class TessieClient {
   async request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const url = new URL(path, BASE_URL);
     let response: Response | undefined;
+    let networkFailure = false;
     for (let attempt = 0; attempt < 3; attempt += 1) {
-      response = await this.fetcher(url, { ...options, headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...options.headers }, signal: AbortSignal.timeout(30_000) });
-      if (response.ok || (response.status !== 429 && response.status < 500) || attempt === 2) break;
+      try {
+        response = await this.fetcher(url, { ...options, headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...options.headers }, signal: AbortSignal.timeout(30_000) });
+        networkFailure = false;
+        if (response.ok || (response.status !== 429 && response.status < 500) || attempt === 2) break;
+      } catch { networkFailure = true; response = undefined; if (attempt === 2) break; }
       await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
     }
+    if (networkFailure) throw new Error("Tessie request failed (network)");
     if (!response?.ok) throw new Error(`Tessie request failed (${response?.status ?? "network"})`);
     return response.json() as Promise<T>;
   }

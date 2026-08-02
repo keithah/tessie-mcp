@@ -2,8 +2,8 @@ services:
   tessie-mcp:
     build: .
     environment:
-      TESSIE_API_KEY: ${TESSIE_API_KEY}
-      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN}
+      TESSIE_API_KEY: ${TESSIE_API_KEY:?TESSIE_API_KEY is required}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:?MCP_AUTH_TOKEN is required}
       DEFAULT_VIN: ${DEFAULT_VIN:-}
     ports:
       - "127.0.0.1:${PORT:-3000}:3000"

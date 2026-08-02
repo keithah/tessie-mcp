@@ -11,7 +11,7 @@ describe("loadConfig", () => {
   });
 
   it("uses safe local defaults", () => {
-    expect(loadConfig({ TESSIE_API_KEY: "tessie", MCP_AUTH_TOKEN: "mcp" })).toMatchObject({
+    expect(loadConfig({ TESSIE_API_KEY: "tessie", MCP_AUTH_TOKEN: "mcp-token-that-is-at-least-32-chars" })).toMatchObject({
       port: 3000,
       dataDir: "/data",
       defaultVin: undefined,

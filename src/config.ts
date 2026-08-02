@@ -21,7 +21,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     port,
     tessieApiKey: required(env, "TESSIE_API_KEY"),
-    mcpAuthToken: required(env, "MCP_AUTH_TOKEN"),
+    mcpAuthToken: (() => { const token = required(env, "MCP_AUTH_TOKEN"); if (token.length < 32) throw new Error("MCP_AUTH_TOKEN must be at least 32 characters"); return token; })(),
     dataDir: env.DATA_DIR?.trim() || "/data",
     defaultVin: env.DEFAULT_VIN?.trim() || undefined,
   };
