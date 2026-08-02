@@ -18,12 +18,12 @@ export function createApp(config: AppConfig) {
     if (!isAuthorized(req.header("authorization"), config.mcpAuthToken)) { res.setHeader("WWW-Authenticate", "Bearer"); res.status(401).json({ error: "Unauthorized" }); return; }
     const sessionId = req.header("mcp-session-id"); let transport = sessionId ? registry.get(sessionId) : undefined;
     if (!transport && req.method === "POST" && isInitializeRequest(req.body)) {
-      if (!registry.canAdd()) { res.status(503).json({ error: "MCP session capacity reached" }); return; }
+      if (!registry.reserve()) { res.status(503).json({ error: "MCP session capacity reached" }); return; }
       transport = new StreamableHTTPServerTransport({ sessionIdGenerator: randomUUID, onsessioninitialized: (id) => { registry.add(id, transport!); } });
       transport.onclose = () => { if (transport?.sessionId) registry.remove(transport.sessionId); };
       const server = new McpServer({ name: "tessie-mcp", version: "3.0.0" });
       registerTools(server, { client: new TessieClient(config.tessieApiKey), store: new SettingsStore(config.dataDir), defaultVin: config.defaultVin });
-      await server.connect(transport);
+      try { await server.connect(transport); } catch (error) { registry.release(); await transport.close().catch(() => undefined); throw error; }
     }
     if (!transport) { res.status(400).json({ error: "Invalid or missing MCP session" }); return; }
     await transport.handleRequest(req, res, req.body);

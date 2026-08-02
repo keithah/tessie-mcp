@@ -1,5 +1,5 @@
 const BASE_URL = "https://api.tessie.com";
-import type { JsonValue } from "./tessie-types.js";
+import type { JsonValue, QueryPayload } from "./tessie-types.js";
 
 export class TessieClient {
   constructor(private readonly apiKey: string, private readonly fetcher: typeof fetch = fetch) {}
@@ -28,7 +28,7 @@ export class TessieClient {
     for (const [key, value] of Object.entries(query ?? {})) if (value !== undefined) params.set(key, String(value));
     return this.request<JsonValue>(`/${vin}${path}${params.size ? `?${params}` : ""}`);
   }
-  post(vin: string, path: string, body?: JsonValue) {
+  post(vin: string, path: string, body?: QueryPayload) {
     const query = new URLSearchParams(); if (body && typeof body === "object" && !Array.isArray(body)) for (const [key, value] of Object.entries(body)) if (value !== undefined) query.set(key, String(value));
     return this.request<JsonValue>(`/${vin}${path}${query.size ? `?${query}` : ""}`, { method: "POST" });
   }

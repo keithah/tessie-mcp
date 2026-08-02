@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { QueryPayload } from "./tessie-types.js";
 
 const paramsSchema = z.object({
   charge_limit_percent: z.number().min(0).max(100).optional(),
@@ -47,6 +48,6 @@ export function buildCommand(operation: string, input: unknown, confirm?: boolea
   const params = paramsSchema.parse(input ?? {});
   if (spec.required === "speed_limit_pin" && !params.speed_limit_pin?.trim()) throw new Error(`${name} requires a non-empty speed_limit_pin`);
   if (spec.required && spec.required !== "speed_limit_pin" && params[spec.required] === undefined) throw new Error(`${name} requires ${spec.required}`);
-  const body = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [payloadKeys[key as ParamName], value]));
+  const body: QueryPayload = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [payloadKeys[key as ParamName], value])) as QueryPayload;
   return { path: `/command/${spec.path ?? name}`, body, requiresConfirmation: !spec.safe, redactions: ["speed_limit_pin"] as const };
 }

@@ -26,7 +26,7 @@ export function registerHistoryTool(server: McpServer, deps: ToolDependencies) {
     const selected = await resolveVin(vin, deps.store, deps.defaultVin); const range = parseDateRange(start, end);
     const raw = await deps.client.get(selected, `/${kind === "historical_states" ? "states" : kind}`, { from: range.from, to: range.to, limit: 1000 }); const records = readResults(raw);
     const result = kind === "drives" ? analyzeDrives(records, { origin, destination, sampleLimit }) : { matchedCount: records.length, records: records.slice(0, sampleLimit ?? 25), ...(kind === "historical_states" ? { autopilotStates: records.reduce<Record<string, number>>((counts, item) => { const state = item && typeof item === "object" && typeof (item as Record<string, unknown>).autopilot === "string" ? (item as Record<string, string>).autopilot : "unknown"; counts[state] = (counts[state] ?? 0) + 1; return counts; }, {}) } : {}) };
-    return toText({ vin: selected, kind, start: range.begin, end: range.finish, ...result });
+    return toText({ vin: selected, kind, start: range.begin, end: range.finish, fetchedCount: records.length, truncated: records.length >= 1000, ...result });
   });
 }
 
