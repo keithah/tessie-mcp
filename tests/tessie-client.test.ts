@@ -15,6 +15,13 @@ it("does not retry a failed vehicle command POST", async () => {
   expect(fetcher).toHaveBeenCalledTimes(1);
 });
 
+it("does not retry a vehicle command POST after an HTTP failure", async () => {
+  const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 503 }));
+  await expect(new TessieClient("token", fetcher).post("5YJSA1E26HF000001", "/command/wake"))
+    .rejects.toThrow("503");
+  expect(fetcher).toHaveBeenCalledTimes(1);
+});
+
 it("retries transient GET failures", async () => {
   const response = new Response(JSON.stringify({ ok: true }), { status: 200 });
   const fetcher = vi.fn<typeof fetch>().mockResolvedValueOnce(new Response(null, { status: 503 })).mockResolvedValueOnce(response);
