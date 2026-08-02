@@ -1,9 +1,10 @@
 const BASE_URL = "https://api.tessie.com";
+import type { JsonValue } from "./tessie-types.js";
 
 export class TessieClient {
   constructor(private readonly apiKey: string, private readonly fetcher: typeof fetch = fetch) {}
 
-  async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  async request<T extends JsonValue>(path: string, options: RequestInit = {}): Promise<T> {
     const url = new URL(path, BASE_URL);
     let response: Response | undefined;
     let networkFailure = false;
@@ -21,11 +22,11 @@ export class TessieClient {
     if (!response?.ok) throw new Error(`Tessie request failed (${response?.status ?? "network"})`);
     return response.json() as Promise<T>;
   }
-  listVehicles() { return this.request<unknown>("/vehicles"); }
+  listVehicles() { return this.request<JsonValue>("/vehicles"); }
   get(vin: string, path: string, query?: Record<string, string | number | undefined>) {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query ?? {})) if (value !== undefined) params.set(key, String(value));
-    return this.request<unknown>(`/${vin}${path}${params.size ? `?${params}` : ""}`);
+    return this.request<JsonValue>(`/${vin}${path}${params.size ? `?${params}` : ""}`);
   }
-  post(vin: string, path: string, body?: unknown) { return this.request<unknown>(`/${vin}${path}`, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) }); }
+  post(vin: string, path: string, body?: JsonValue) { return this.request<JsonValue>(`/${vin}${path}`, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) }); }
 }
