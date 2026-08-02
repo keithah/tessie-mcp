@@ -32,7 +32,8 @@ export function registerTools(server: McpServer, deps: Dependencies) {
     return text({ vin: selected, start: begin, end: finish, ...analyzeDrives(records, { origin, destination, sampleLimit }) });
   });
   server.tool("get_driving_path", `Get a native driving path for the selected vehicle and time window. At most ${MAX_PATH_POINTS} points are returned.`, { vin: z.string().optional(), start: z.string(), end: z.string() }, async ({ vin, start, end }) => {
-    const selected = await resolveVin(vin, deps.store, deps.defaultVin); const raw = await deps.client.get(selected, "/driving_path", { start, end }); const points = Array.isArray(raw) ? raw : [];
+    const selected = await resolveVin(vin, deps.store, deps.defaultVin); const from = Math.floor(Date.parse(start) / 1000); const to = Math.floor(Date.parse(end) / 1000); if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) throw new Error("start and end must be valid dates with end after start");
+    const raw = await deps.client.get(selected, "/path", { from, to }); const points = raw && typeof raw === "object" && Array.isArray((raw as { results?: unknown }).results) ? (raw as { results: unknown[] }).results : [];
     return text({ vin: selected, start, end, totalPoints: points.length, truncated: points.length > MAX_PATH_POINTS, points: points.slice(0, MAX_PATH_POINTS) });
   });
   server.tool("vehicle_command", "Run an allowlisted Tessie vehicle command. High-impact commands require confirm: true.", { vin: z.string().optional(), operation: operationSchema, confirm: z.boolean().optional(), params: z.record(z.unknown()).optional() }, async ({ vin, operation, confirm, params }) => {

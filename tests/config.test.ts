@@ -10,6 +10,10 @@ describe("loadConfig", () => {
     expect(() => loadConfig({ TESSIE_API_KEY: "tessie" })).toThrow("MCP_AUTH_TOKEN");
   });
 
+  it("rejects a short MCP auth token", () => {
+    expect(() => loadConfig({ TESSIE_API_KEY: "tessie", MCP_AUTH_TOKEN: "too-short" })).toThrow("at least 32 characters");
+  });
+
   it("uses safe local defaults", () => {
     expect(loadConfig({ TESSIE_API_KEY: "tessie", MCP_AUTH_TOKEN: "mcp-token-that-is-at-least-32-chars" })).toMatchObject({
       port: 3000,

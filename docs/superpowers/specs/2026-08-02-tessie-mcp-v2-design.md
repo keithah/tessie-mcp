@@ -60,7 +60,7 @@ Gets a typed Tessie read resource for the selected or explicitly supplied VIN. T
 - summary/state/status, battery, location, map, weather, tire pressure, consumption, and battery health;
 - drives, charges, idles, last idle state, driving path metadata, and historical states;
 - driving-assistance fields returned by native Tessie data, including drive `autopilot_distance` and historical-state `autopilot`;
-- firmware alerts, license plate, and charging invoices when the Tessie account supports them.
+- firmware alerts and license plate when the Tessie account supports them. Account-level charging invoices are excluded from this vehicle-scoped tool.
 
 The input includes only resource-appropriate filters: time windows, pagination/limits, and read-specific options. Outputs preserve Tessie's useful fields with stable, documented wrappers rather than hiding data behind custom summaries.
 

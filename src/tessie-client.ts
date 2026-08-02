@@ -7,12 +7,14 @@ export class TessieClient {
     const url = new URL(path, BASE_URL);
     let response: Response | undefined;
     let networkFailure = false;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
+    const retryable = (options.method ?? "GET").toUpperCase() === "GET";
+    const attempts = retryable ? 3 : 1;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
       try {
         response = await this.fetcher(url, { ...options, headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...options.headers }, signal: AbortSignal.timeout(30_000) });
         networkFailure = false;
-        if (response.ok || (response.status !== 429 && response.status < 500) || attempt === 2) break;
-      } catch { networkFailure = true; response = undefined; if (attempt === 2) break; }
+        if (response.ok || (response.status !== 429 && response.status < 500) || attempt === attempts - 1) break;
+      } catch { networkFailure = true; response = undefined; if (attempt === attempts - 1) break; }
       await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
     }
     if (networkFailure) throw new Error("Tessie request failed (network)");

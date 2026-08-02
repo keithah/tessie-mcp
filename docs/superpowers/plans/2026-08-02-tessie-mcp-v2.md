@@ -164,7 +164,7 @@ Expected: failure because modules do not exist.
 
 - [ ] **Step 3: Implement explicit resource and aggregation behavior**
 
-Base all calls at https://api.tessie.com with a 30-second timeout and at most two retries for 429/5xx. Redact body and headers from errors/logs. Allow documented resources: state, status, battery, location, weather, tire_pressure, consumption, battery_health, battery_health_measurements, drives, charges, idles, last_idle_state, historical_states, firmware_alerts, license_plate, charging_invoices, map, and driving_path_metadata. Accept only supported time/pagination filters.
+Base all calls at https://api.tessie.com with a 30-second timeout and at most two retries for 429/5xx GET requests. Redact body and headers from errors/logs. Allow documented vehicle resources: state, status, battery, location, weather, tire_pressure, consumption, battery_health, battery_health_measurements, drives, charges, idles, last_idle_state, historical_states, firmware_alerts, license_plate, and driving_path_metadata. Account-level charging invoices are excluded from this vehicle-scoped tool. Accept only supported time/pagination filters.
 
 For drive analysis: normalize whitespace/case and substring-match destination/origin against Tessie locations; calculate duration from valid timestamps; sum/average distance, energy, and autopilot_distance; report excluded records. For historical states, group the native autopilot string and sum bounded elapsed intervals.
 
