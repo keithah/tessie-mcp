@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { buildCommand } from "../src/commands.js";
 it("requires confirmation for unlock", () => expect(() => buildCommand("unlock", {})).toThrow("confirm: true"));
-it("allows wake without confirmation", () => expect(buildCommand("wake", {})).toMatchObject({ path: "/command/wake" }));
+it("routes wake to Tessie's dedicated endpoint", () => expect(buildCommand("wake", {})).toMatchObject({ path: "/wake" }));
 it("rejects arbitrary upstream paths", () => expect(() => buildCommand("anything", {})).toThrow("Invalid enum"));
 it("maps temperature and requires its payload", () => {
   expect(() => buildCommand("set_temperature", {})).toThrow("cabin_temp_c");

@@ -3,9 +3,14 @@ type MetricName = "duration" | "distance" | "energy" | "autopilot";
 export type HistoryKind = "drives" | "charges" | "idles" | "historical_states";
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
-const asNumber = (value: unknown) => (
-  typeof value === "number" && Number.isFinite(value) ? value : undefined
-);
+const asNumber = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isFinite(parsed) ? parsed / 1000 : undefined;
+  }
+  return undefined;
+};
 const fieldsText = (record: RecordData, keys: string[]) => keys
   .map((key) => record[key])
   .filter((value): value is string => typeof value === "string")
@@ -73,15 +78,32 @@ export function analyzeDrives(records: unknown[], filters: { origin?: string; de
 }
 
 export function analyzeNonDriveHistory(kind: Exclude<HistoryKind, "drives">, records: unknown[], sampleLimit = 25) {
-  const result: { matchedCount: number; records: unknown[]; autopilotStates?: Record<string, number> } = { matchedCount: records.length, records: records.slice(0, sampleLimit) };
+  const result: {
+    matchedCount: number;
+    records: unknown[];
+    autopilotStates?: Record<string, number>;
+    autopilotStateDurationSeconds?: Record<string, number>;
+  } = { matchedCount: records.length, records: records.slice(0, sampleLimit) };
   if (kind === "historical_states") {
-    result.autopilotStates = records.reduce<Record<string, number>>((counts, item) => {
-      const state = item && typeof item === "object"
-        && typeof (item as Record<string, unknown>).autopilot === "string"
-        ? (item as Record<string, string>).autopilot
-        : "unknown";
-      counts[state] = (counts[state] ?? 0) + 1;
+    const states = records.map((item) => {
+      const record = item && typeof item === "object" && !Array.isArray(item)
+        ? item as RecordData
+        : {};
+      return {
+        state: typeof record.autopilot === "string" ? record.autopilot : "unknown",
+        timestamp: asNumber(record.timestamp ?? record.created_at ?? record.date ?? record.time),
+      };
+    });
+    result.autopilotStates = states.reduce<Record<string, number>>((counts, item) => {
+      counts[item.state] = (counts[item.state] ?? 0) + 1;
       return counts;
+    }, {});
+    result.autopilotStateDurationSeconds = states.reduce<Record<string, number>>((durations, item, index) => {
+      const next = states[index + 1]?.timestamp;
+      if (item.timestamp !== undefined && next !== undefined && next >= item.timestamp) {
+        durations[item.state] = (durations[item.state] ?? 0) + next - item.timestamp;
+      }
+      return durations;
     }, {});
   }
   return result;

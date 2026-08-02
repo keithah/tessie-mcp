@@ -9,3 +9,17 @@ it("filters origins and returns typed aggregate metrics with a bounded sample", 
   expect(result).toMatchObject({ matchedCount: 1, totalDurationSeconds: 100, averageDistanceMiles: 10, totalAutopilotDistance: 4 });
   expect(result.records).toHaveLength(1);
 });
+
+it("parses ISO drive timestamps and aggregates historical state elapsed time", async () => {
+  const { analyzeNonDriveHistory } = await import("../src/analysis.js");
+  const drives = analyzeDrives([
+    { started_at: "2026-08-02T00:00:00Z", ended_at: "2026-08-02T01:00:00Z" },
+  ]);
+  expect(drives.totalDurationSeconds).toBe(3600);
+  const states = analyzeNonDriveHistory("historical_states", [
+    { timestamp: "2026-08-02T00:00:00Z", autopilot: "autopilot" },
+    { timestamp: "2026-08-02T00:10:00Z", autopilot: "manual" },
+    { timestamp: "2026-08-02T00:20:00Z", autopilot: "autopilot" },
+  ]);
+  expect(states.autopilotStateDurationSeconds).toEqual({ autopilot: 600, manual: 600 });
+});
