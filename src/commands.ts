@@ -48,6 +48,10 @@ export function buildCommand(operation: string, input: unknown, confirm?: boolea
   const params = paramsSchema.parse(input ?? {});
   if (spec.required === "speed_limit_pin" && !params.speed_limit_pin?.trim()) throw new Error(`${name} requires a non-empty speed_limit_pin`);
   if (spec.required && spec.required !== "speed_limit_pin" && params[spec.required] === undefined) throw new Error(`${name} requires ${spec.required}`);
-  const body: QueryPayload = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [payloadKeys[key as ParamName], value])) as QueryPayload;
+  const body: QueryPayload = {};
+  for (const key of Object.keys(payloadKeys) as ParamName[]) {
+    const value = params[key];
+    if (value !== undefined) body[payloadKeys[key]] = value;
+  }
   return { path: `/command/${spec.path ?? name}`, body, requiresConfirmation: !spec.safe, redactions: ["speed_limit_pin"] as const };
 }
