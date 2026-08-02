@@ -1,0 +1,14 @@
+services:
+  tessie-mcp:
+    build: .
+    environment:
+      TESSIE_API_KEY: ${TESSIE_API_KEY}
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN}
+      DEFAULT_VIN: ${DEFAULT_VIN:-}
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+    volumes:
+      - tessie-mcp-data:/data
+    restart: unless-stopped
+volumes:
+  tessie-mcp-data:
