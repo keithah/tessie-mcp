@@ -15,8 +15,9 @@
   "keywords": ["mcp", "tessie", "tesla", "self-hosted"],
   "license": "MIT",
   "engines": { "node": ">=22" },
+  "overrides": { "path-to-regexp": "^8.4.2" },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.18.2",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "express": "^5.1.0",
     "zod": "^3.25.76"
   },

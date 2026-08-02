@@ -23,10 +23,13 @@ export class TessieClient {
     return response.json() as Promise<T>;
   }
   listVehicles() { return this.request<JsonValue>("/vehicles"); }
-  get(vin: string, path: string, query?: Record<string, string | number | undefined>) {
+  get(vin: string, path: string, query?: Record<string, string | number | boolean | undefined>) {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query ?? {})) if (value !== undefined) params.set(key, String(value));
     return this.request<JsonValue>(`/${vin}${path}${params.size ? `?${params}` : ""}`);
   }
-  post(vin: string, path: string, body?: JsonValue) { return this.request<JsonValue>(`/${vin}${path}`, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) }); }
+  post(vin: string, path: string, body?: JsonValue) {
+    const query = new URLSearchParams(); if (body && typeof body === "object" && !Array.isArray(body)) for (const [key, value] of Object.entries(body)) if (value !== undefined) query.set(key, String(value));
+    return this.request<JsonValue>(`/${vin}${path}${query.size ? `?${query}` : ""}`, { method: "POST" });
+  }
 }

@@ -18,6 +18,7 @@ export function createApp(config: AppConfig) {
     if (!isAuthorized(req.header("authorization"), config.mcpAuthToken)) { res.setHeader("WWW-Authenticate", "Bearer"); res.status(401).json({ error: "Unauthorized" }); return; }
     const sessionId = req.header("mcp-session-id"); let transport = sessionId ? registry.get(sessionId) : undefined;
     if (!transport && req.method === "POST" && isInitializeRequest(req.body)) {
+      if (!registry.canAdd()) { res.status(503).json({ error: "MCP session capacity reached" }); return; }
       transport = new StreamableHTTPServerTransport({ sessionIdGenerator: randomUUID, onsessioninitialized: (id) => { registry.add(id, transport!); } });
       transport.onclose = () => { if (transport?.sessionId) registry.remove(transport.sessionId); };
       const server = new McpServer({ name: "tessie-mcp", version: "3.0.0" });
