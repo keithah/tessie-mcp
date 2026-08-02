@@ -11,7 +11,11 @@ function required(env: NodeJS.ProcessEnv, name: "TESSIE_API_KEY" | "MCP_AUTH_TOK
   if (!value) throw new Error(`${name} is required`);
   return value;
 }
-function requiredMcpAuthToken(env: NodeJS.ProcessEnv) { const token = required(env, "MCP_AUTH_TOKEN"); if (token.length < 32) throw new Error("MCP_AUTH_TOKEN must be at least 32 characters"); return token; }
+function requiredMcpAuthToken(env: NodeJS.ProcessEnv) {
+  const token = required(env, "MCP_AUTH_TOKEN");
+  if (token.length < 32) throw new Error("MCP_AUTH_TOKEN must be at least 32 characters");
+  return token;
+}
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const port = Number(env.PORT ?? 3000);

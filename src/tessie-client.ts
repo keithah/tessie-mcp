@@ -12,7 +12,15 @@ export class TessieClient {
     const attempts = retryable ? 3 : 1;
     for (let attempt = 0; attempt < attempts; attempt += 1) {
       try {
-        response = await this.fetcher(url, { ...options, headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...options.headers }, signal: AbortSignal.timeout(30_000) });
+        response = await this.fetcher(url, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+            ...options.headers,
+          },
+          signal: AbortSignal.timeout(30_000),
+        });
         networkFailure = false;
         if (response.ok || (response.status !== 429 && response.status < 500) || attempt === attempts - 1) break;
       } catch { networkFailure = true; response = undefined; if (attempt === attempts - 1) break; }
@@ -29,7 +37,10 @@ export class TessieClient {
     return this.request<JsonValue>(`/${vin}${path}${params.size ? `?${params}` : ""}`);
   }
   post(vin: string, path: string, body?: QueryPayload) {
-    const query = new URLSearchParams(); if (body && typeof body === "object" && !Array.isArray(body)) for (const [key, value] of Object.entries(body)) if (value !== undefined) query.set(key, String(value));
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(body ?? {})) {
+      if (value !== undefined) query.set(key, String(value));
+    }
     return this.request<JsonValue>(`/${vin}${path}${query.size ? `?${query}` : ""}`, { method: "POST" });
   }
 }
