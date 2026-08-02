@@ -134,7 +134,10 @@ export function registerReadTools(server: McpServer, deps: ToolDependencies) {
 export function registerHistoryTool(server: McpServer, deps: ToolDependencies) {
   server.tool(
     "analyze_history",
-    "Analyze drives, charges, idles, or historical Autopilot/FSD telemetry over a 90-day default window. Drive analysis supports origin/destination filters and duration, distance, energy, and native telemetry aggregates. Results include a bounded sample.",
+    "Analyze drives, charges, idles, or historical Autopilot/FSD telemetry "
+      + "over a 90-day default window. Drive analysis supports "
+      + "origin/destination filters and native telemetry aggregates. Results "
+      + "include a bounded sample.",
     historySchema,
     (args) => handleAnalyzeHistory(deps, args),
   );
