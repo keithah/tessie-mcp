@@ -14,10 +14,10 @@ const paramsSchema = z.object({
 }).strict();
 type Params = z.infer<typeof paramsSchema>;
 type ParamName = keyof Params;
-type Spec = { path?: string; safe?: boolean; required?: ParamName };
+type Spec = { path?: string; root?: boolean; safe?: boolean; required?: ParamName };
 
 const specs = {
-  wake: { safe: true, path: "wake" }, flash: { safe: true }, honk: { safe: true },
+  wake: { safe: true, path: "wake", root: true }, flash: { safe: true }, honk: { safe: true },
   lock: {}, unlock: {}, start_climate: { safe: true }, stop_climate: { safe: true },
   start_charging: { safe: true }, stop_charging: { safe: true },
   set_charge_limit: { safe: true, required: "charge_limit_percent" },
@@ -53,6 +53,6 @@ export function buildCommand(operation: string, input: unknown, confirm?: boolea
     const value = params[key];
     if (value !== undefined) body[payloadKeys[key]] = value;
   }
-  const path = name === "wake" ? "/wake" : `/command/${spec.path ?? name}`;
+  const path = spec.root ? `/${spec.path ?? name}` : `/command/${spec.path ?? name}`;
   return { path, body, requiresConfirmation: !spec.safe, redactions: ["speed_limit_pin"] as const };
 }

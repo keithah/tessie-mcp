@@ -4,6 +4,9 @@ export type HistoryKind = "drives" | "charges" | "idles" | "historical_states";
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 const asNumber = (value: unknown) => {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+};
+const asTimestamp = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
     const parsed = Date.parse(value);
@@ -23,8 +26,8 @@ function matchesLocation(record: RecordData, origin?: string, destination?: stri
 }
 
 function toMetrics(record: RecordData) {
-  const start = asNumber(record.started_at ?? record.start_date);
-  const end = asNumber(record.ended_at ?? record.end_date);
+  const start = asTimestamp(record.started_at ?? record.start_date);
+  const end = asTimestamp(record.ended_at ?? record.end_date);
   return {
     duration: start !== undefined && end !== undefined && end >= start ? end - start : undefined,
     distance: asNumber(record.odometer_distance ?? record.distance_miles ?? record.distance),
@@ -91,7 +94,7 @@ export function analyzeNonDriveHistory(kind: Exclude<HistoryKind, "drives">, rec
         : {};
       return {
         state: typeof record.autopilot === "string" ? record.autopilot : "unknown",
-        timestamp: asNumber(record.timestamp ?? record.created_at ?? record.date ?? record.time),
+        timestamp: asTimestamp(record.timestamp ?? record.created_at ?? record.date ?? record.time),
       };
     });
     result.autopilotStates = states.reduce<Record<string, number>>((counts, item) => {
