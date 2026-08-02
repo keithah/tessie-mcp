@@ -1,73 +1,30 @@
 {
-  "name": "tessie-mcp-server",
-  "version": "2.0.0",
-  "description": "Tessie MCP server (v2) with summary-first tools built from the latest Tessie developer API.",
+  "name": "tessie-mcp",
+  "version": "3.0.0",
+  "description": "Self-hosted personal Tessie MCP server",
   "type": "module",
-  "module": "./src/index.ts",
-  "bin": {
-    "tessie-mcp-server": "./.smithery/stdio/index.cjs"
-  },
-  "files": [
-    ".smithery",
-    ".well-known"
-  ],
+  "main": "./dist/index.js",
   "scripts": {
-    "build": "npm run build:shttp",
-    "build:stdio": "smithery build src/index.ts --transport stdio -o .smithery/stdio/index.cjs && echo '#!/usr/bin/env node' | cat - .smithery/stdio/index.cjs > temp && mv temp .smithery/stdio/index.cjs && chmod +x .smithery/stdio/index.cjs",
-    "build:shttp": "smithery build src/index.ts --transport shttp -o .smithery/shttp/index.cjs && cp mcp.json .smithery/shttp/mcp.json",
-    "build:all": "npm run build:stdio && npm run build:shttp",
-    "prepare": "npm run build:shttp",
-    "dev": "smithery dev",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "smoke": "npx tsx scripts/smoke.ts",
-    "smoke:tools": "npx tsx scripts/tool-smoke.ts",
-    "release": "npm run build:all && echo 'Release v$(node -p \"require('./package.json').version\") built successfully'"
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "npm run build && npm test"
   },
-  "keywords": [
-    "mcp",
-    "tessie",
-    "tesla",
-    "vehicle",
-    "api"
-  ],
-  "author": "",
+  "keywords": ["mcp", "tessie", "tesla", "self-hosted"],
   "license": "MIT",
+  "engines": { "node": ">=20" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.2",
-    "@smithery/sdk": "^1.6.4",
-    "axios": "^1.6.0",
-    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@smithery/cli": "^1.4.1",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^20.0.0",
-    "jest": "^30.1.3",
-    "ts-jest": "^29.4.4",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "roots": ["<rootDir>/src", "<rootDir>/tests"],
-    "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "extensionsToTreatAsEsm": [".ts"],
-    "globals": {
-      "ts-jest": {
-        "useESM": true
-      }
-    },
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"]
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.17.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }
