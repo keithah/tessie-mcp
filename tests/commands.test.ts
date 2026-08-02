@@ -8,6 +8,6 @@ it("maps temperature and requires its payload", () => {
   const command = buildCommand("set_temperature", { cabin_temp_c: 20 });
   expect(command.path).toBe("/command/set_temperatures");
   expect(command.body).toEqual({ temperature: 20 });
-  expect(buildCommand("lock", { charging_amps: 16 }, true).body).toEqual({});
+  expect(() => buildCommand("lock", { charging_amps: 16 }, true)).toThrow("does not accept charging_amps");
 });
 it("requires confirmation for cabin-overheat settings", () => expect(() => buildCommand("set_cop_temp", { cop_temp: 2 })).toThrow("confirm: true"));
