@@ -9,7 +9,7 @@ services:
     ports:
       - "127.0.0.1:${PORT:-3000}:3000"
     volumes:
-      - tessie-mcp-data:/data
+      - tessie-mcp-data:${DATA_DIR:-/data}
     restart: unless-stopped
 volumes:
   tessie-mcp-data:
