@@ -7,7 +7,7 @@ services:
       DEFAULT_VIN: ${DEFAULT_VIN:-}
       DATA_DIR: ${DATA_DIR:-/data}
     ports:
-      - "127.0.0.1:${PORT:-3000}:3000"
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-3000}:3000"
     volumes:
       - tessie-mcp-data:${DATA_DIR:-/data}
     restart: unless-stopped
