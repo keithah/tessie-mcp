@@ -1,4 +1,9 @@
 node_modules/
+dist/
+.worktrees/
+coverage/
+data/
+.env
 .env
 .env.local
 *.log
