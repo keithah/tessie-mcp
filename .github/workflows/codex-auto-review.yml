@@ -8,7 +8,7 @@ on:
 jobs:
   trigger-codex-review:
     if: github.event.pull_request.head.repo.fork == false && !contains(github.event.pull_request.labels.*.name, 'skip-codex')
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
     timeout-minutes: 5
     permissions:
       pull-requests: write
